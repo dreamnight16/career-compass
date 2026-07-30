@@ -2,7 +2,7 @@
 
 import type { Route, RouteNode } from './planner';
 
-const ROUTES_KEY = 'mingdao-routes';
+const ROUTES_KEY = 'career-compass-routes';
 
 type StoredRoute = Route & { status: 'active' | 'completed' | 'abandoned' };
 

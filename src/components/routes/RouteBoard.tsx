@@ -42,7 +42,7 @@ export function RouteBoard() {
     // Collect night visits count
     let nightVisits = 0;
     try {
-      const raw = localStorage.getItem('mingdao-streak');
+      const raw = localStorage.getItem('career-compass-streak');
       if (raw) {
         const dates: string[] = JSON.parse(raw);
         nightVisits = dates.length;
@@ -78,7 +78,7 @@ export function RouteBoard() {
     const refresh = () => {
       const streak = getStreak();
       let nightVisits = 0;
-      try { nightVisits = parseInt(localStorage.getItem('mingdao-night-visits') || '0', 10); } catch { /* ignore */ }
+      try { nightVisits = parseInt(localStorage.getItem('career-compass-night-visits') || '0', 10); } catch { /* ignore */ }
       const ctx = collectContext(
         streak, getProfile(), getActivities().filter(a => a.type === 'resource_save').length,
         getCompareViews(), isPersonalityDone(), getCompetencyCount(),
@@ -161,32 +161,32 @@ function PlaceholderView({ title, desc }: { title: string; desc: string }) {
 
 // Helper functions to query localStorage state
 function getProfile(): Record<string, unknown> {
-  try { return JSON.parse(localStorage.getItem('mingdao-profile') || '{}'); }
+  try { return JSON.parse(localStorage.getItem('career-compass-profile') || '{}'); }
   catch { return {}; }
 }
 
 function getCompareViews(): string[] {
-  try { return JSON.parse(localStorage.getItem('mingdao-compare-views') || '[]'); }
+  try { return JSON.parse(localStorage.getItem('career-compass-compare-views') || '[]'); }
   catch { return []; }
 }
 
 function isPersonalityDone(): boolean {
-  try { return localStorage.getItem('mingdao-bigfive') !== null || localStorage.getItem('mingdao-personality-result') !== null; }
+  try { return localStorage.getItem('career-compass-bigfive') !== null || localStorage.getItem('career-compass-personality-result') !== null; }
   catch { return false; }
 }
 
 function getCompetencyCount(): number {
-  try { return JSON.parse(localStorage.getItem('mingdao-competency-count') || '0'); }
+  try { return JSON.parse(localStorage.getItem('career-compass-competency-count') || '0'); }
   catch { return 0; }
 }
 
 function isExplorerUsed(): boolean {
-  try { return localStorage.getItem('mingdao-explorer-used') === 'true'; }
+  try { return localStorage.getItem('career-compass-explorer-used') === 'true'; }
   catch { return false; }
 }
 
 function isSimDone(): boolean {
-  try { return localStorage.getItem('mingdao-sim-done') === 'true'; }
+  try { return localStorage.getItem('career-compass-sim-done') === 'true'; }
   catch { return false; }
 }
 

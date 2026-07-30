@@ -24,14 +24,14 @@ function MainContent() {
     const isNight = hour >= 22 || hour < 5;
     if (isNight) {
       try {
-        const nightCount = parseInt(localStorage.getItem('mingdao-night-visits') || '0', 10) + 1;
-        localStorage.setItem('mingdao-night-visits', String(nightCount));
+        const nightCount = parseInt(localStorage.getItem('career-compass-night-visits') || '0', 10) + 1;
+        localStorage.setItem('career-compass-night-visits', String(nightCount));
       } catch { /* ignore */ }
     }
 
     // Collect night visits for achievement context
     const nightVisits = (() => {
-      try { return parseInt(localStorage.getItem('mingdao-night-visits') || '0', 10); }
+      try { return parseInt(localStorage.getItem('career-compass-night-visits') || '0', 10); }
       catch { return 0; }
     })();
 

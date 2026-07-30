@@ -37,7 +37,7 @@ function saveField(profile: Partial<UserProfile>, field: FieldDef, rawValue: str
   // 以 localStorage 现值为基底合并，防止连续编辑时旧 prop 覆盖上一次修改
   let base: Partial<UserProfile> = profile;
   try {
-    const stored = JSON.parse(localStorage.getItem('mingdao-profile') || '{}');
+    const stored = JSON.parse(localStorage.getItem('career-compass-profile') || '{}');
     if (stored && typeof stored === 'object' && !Array.isArray(stored)) {
       base = { ...profile, ...stored };
     }
@@ -58,7 +58,7 @@ function saveField(profile: Partial<UserProfile>, field: FieldDef, rawValue: str
   if (value === undefined) delete updated[field.key];
   else updated[field.key] = value;
   try {
-    localStorage.setItem('mingdao-profile', JSON.stringify(updated));
+    localStorage.setItem('career-compass-profile', JSON.stringify(updated));
     window.dispatchEvent(new Event('profile-updated'));
   } catch {
     // localStorage 不可用（配额满/隐私模式/无痕浏览），修改仅存于内存，不做静默回退

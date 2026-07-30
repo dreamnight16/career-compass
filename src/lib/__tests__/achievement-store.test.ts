@@ -44,14 +44,14 @@ describe('achievement-store', () => {
 
     it('returns stored achievements', () => {
       const now = new Date().toISOString();
-      store.set('mingdao-achievements', JSON.stringify([{ id: 'first-route', unlockedAt: now }]));
+      store.set('career-compass-achievements', JSON.stringify([{ id: 'first-route', unlockedAt: now }]));
       const result = getAchievements();
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe('first-route');
     });
 
     it('clears corrupted data and returns empty array', () => {
-      store.set('mingdao-achievements', 'not-json');
+      store.set('career-compass-achievements', 'not-json');
       expect(getAchievements()).toEqual([]);
     });
   });
@@ -70,7 +70,7 @@ describe('achievement-store', () => {
     });
 
     it('does not re-unlock already unlocked achievements', () => {
-      store.set('mingdao-achievements', JSON.stringify([{ id: 'first-route', unlockedAt: new Date().toISOString() }]));
+      store.set('career-compass-achievements', JSON.stringify([{ id: 'first-route', unlockedAt: new Date().toISOString() }]));
       const ctx = emptyCtx({ routes: [{ id: 'r1', title: 'test', nodes: [], status: 'active' } as never] });
       const result = checkAndUnlock(ctx);
       expect(result.some(a => a.id === 'first-route')).toBe(false);
@@ -131,7 +131,7 @@ describe('achievement-store', () => {
 
   describe('getAchievementCount', () => {
     it('returns count of unlocked achievements', () => {
-      store.set('mingdao-achievements', JSON.stringify([
+      store.set('career-compass-achievements', JSON.stringify([
         { id: 'a', unlockedAt: new Date().toISOString() },
         { id: 'b', unlockedAt: new Date().toISOString() },
       ]));

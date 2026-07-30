@@ -1,8 +1,8 @@
-# 明道 UI 重构实现计划
+# 歧点 UI 重构实现计划
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** 将明道从单页聊天升级为落地页 + 侧边栏四模块主界面 + 用户活动记录的完整产品
+**Goal:** 将歧点从单页聊天升级为落地页 + 侧边栏四模块主界面 + 用户活动记录的完整产品
 
 **Architecture:** Landing page `/` → CTA → main app `/main` with shadcn sidebar. Four modules (AI Coach / Profile / Knowledge / Resources) share a sidebar shell, content swapped via URL search params. All state persists in localStorage — no backend.
 
@@ -118,7 +118,7 @@ export function HeroSection({ onEnter }: HeroSectionProps) {
       <div className="relative z-10 flex flex-col items-center gap-6 px-6 text-center">
         {/* 标题 */}
         <h1 className="font-serif-hero text-[clamp(3.5rem,8vw,7rem)] font-bold leading-none tracking-tight text-foreground hero-reveal">
-          明道
+          歧点
         </h1>
 
         {/* 签名装饰线 — SVG手绘风 */}
@@ -213,7 +213,7 @@ export function FeatureGrid({ onEnter }: FeatureGridProps) {
             onClick={onEnter}
             className="rounded-xl bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:scale-[1.03] hover:shadow-md active:scale-[0.98]"
           >
-            进入明道
+            进入歧点
           </button>
         </div>
       </div>
@@ -307,14 +307,14 @@ export function AppSidebar({ onOpenHistory }: { onOpenHistory: () => void }) {
   const params = useSearchParams();
   const activeTab = params.get('tab') || 'coach';
   const [collapsed, setCollapsed] = useState(() => {
-    try { return localStorage.getItem('mingdao-sidebar-collapsed') === 'true'; }
+    try { return localStorage.getItem('career-compass-sidebar-collapsed') === 'true'; }
     catch { return false; }
   });
 
   const toggleCollapse = () => {
     const next = !collapsed;
     setCollapsed(next);
-    try { localStorage.setItem('mingdao-sidebar-collapsed', String(next)); }
+    try { localStorage.setItem('career-compass-sidebar-collapsed', String(next)); }
     catch { /* ignore */ }
   };
 
@@ -338,7 +338,7 @@ export function AppSidebar({ onOpenHistory }: { onOpenHistory: () => void }) {
         </button>
         {!collapsed && (
           <span className="text-base font-bold tracking-tight text-foreground whitespace-nowrap">
-            明道
+            歧点
           </span>
         )}
       </div>
@@ -574,15 +574,15 @@ export function ProfileDashboard() {
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('mingdao-competency');
+      const saved = localStorage.getItem('career-compass-competency');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed.studentCompetency) setStudentCompetency(parsed.studentCompetency);
         if (parsed.competencyProfile) { setCompetencyProfile(parsed.competencyProfile); setShowCompetency(true); }
       }
-      const profileSaved = localStorage.getItem('mingdao-profile');
+      const profileSaved = localStorage.getItem('career-compass-profile');
       if (profileSaved) setProfile(JSON.parse(profileSaved));
-      const activities = JSON.parse(localStorage.getItem('mingdao-activity') || '[]');
+      const activities = JSON.parse(localStorage.getItem('career-compass-activity') || '[]');
       setActivityCount(activities.length);
     } catch { /* ignore */ }
   }, []);
@@ -595,7 +595,7 @@ export function ProfileDashboard() {
         ? prev.selfAssessments.map((a, i) => (i === existing ? assessment : a))
         : [...prev.selfAssessments, assessment];
       const updated = { ...prev, selfAssessments };
-      localStorage.setItem('mingdao-competency', JSON.stringify({ studentCompetency: updated, competencyProfile }));
+      localStorage.setItem('career-compass-competency', JSON.stringify({ studentCompetency: updated, competencyProfile }));
       return updated;
     });
   };
@@ -611,7 +611,7 @@ export function ProfileDashboard() {
         setCompetencyProfile(json.data);
         setStudentCompetency((prev) => {
           const updated = { ...prev, targetCareer: occupation };
-          localStorage.setItem('mingdao-competency', JSON.stringify({ studentCompetency: updated, competencyProfile: json.data }));
+          localStorage.setItem('career-compass-competency', JSON.stringify({ studentCompetency: updated, competencyProfile: json.data }));
           return updated;
         });
         setShowCompetency(true);
@@ -640,7 +640,7 @@ export function ProfileDashboard() {
               selfAssessments={studentCompetency.selfAssessments}
               onAssess={handleAssess}
               onViewResources={() => {}}
-              onRefresh={() => { setShowCompetency(false); setCompetencyProfile(null); setCompetencyOccupation(''); localStorage.removeItem('mingdao-competency'); }}
+              onRefresh={() => { setShowCompetency(false); setCompetencyProfile(null); setCompetencyOccupation(''); localStorage.removeItem('career-compass-competency'); }}
             />
           ) : (
             <div className="rounded-lg border border-dashed border-border/60 bg-card/40 px-4 py-3">
@@ -723,7 +723,7 @@ git commit -m "feat: add Profile module with role card, competency assessment, a
 - Create: `src/lib/activity-store.ts`
 
 **Interfaces:**
-- Consumes: localStorage `mingdao-activity` 数组
+- Consumes: localStorage `career-compass-activity` 数组
 - Produces: `<HistoryDrawer open={boolean} onClose={...}>` 右侧抽屉面板
 
 - [ ] **Step 1: 创建 `activity-store.ts`**
@@ -737,7 +737,7 @@ export interface ActivityEntry {
   timestamp: string;
 }
 
-const STORAGE_KEY = 'mingdao-activity';
+const STORAGE_KEY = 'career-compass-activity';
 
 export function getActivities(): ActivityEntry[] {
   try {
@@ -878,10 +878,10 @@ export function HistoryDrawer({ open, onClose }: HistoryDrawerProps) {
 
 ```typescript
 useEffect(() => {
-  const activities = JSON.parse(localStorage.getItem('mingdao-activity') || '[]');
+  const activities = JSON.parse(localStorage.getItem('career-compass-activity') || '[]');
   if (activities.length === 0) {
     import('@/lib/activity-store').then((m) => {
-      m.addActivity({ type: 'first_visit', title: '首次使用明道', detail: '开启职业探索之旅' });
+      m.addActivity({ type: 'first_visit', title: '首次使用歧点', detail: '开启职业探索之旅' });
     });
   }
 }, []);
@@ -929,7 +929,7 @@ git commit -m "feat: add history drawer with activity timeline and search"
 
 ```typescript
 export const metadata: Metadata = {
-  title: '明道 — 为你探明前路',
+  title: '歧点 — 为你探明前路',
   description: '不是告诉你该选哪条路，而是让你看清每条路的样子，然后自己决定。',
 };
 ```
@@ -976,7 +976,7 @@ npm run dev                         # 开发服务器手动验证
 1. `npm run dev` → 打开 localhost:3000
 2. 看到落地页 → 宋体大标题 + 手绘装饰线 + 噪点纹理 + 入场动画
 3. 滚动到第二屏 → 四宫格卡片
-4. 点击「进入明道」→ 进入 `/main?tab=coach`
+4. 点击「进入歧点」→ 进入 `/main?tab=coach`
 5. 左侧侧边栏 → 四个导航项 + lucide 图标 + 3px 选中指示线
 6. 点击各模块 → 内容切换 150ms 淡入
 7. 侧边栏折叠按钮 → 收起至 64px / 展开至 220px

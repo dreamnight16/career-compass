@@ -6,7 +6,7 @@ export interface ActivityEntry {
   timestamp: string;
 }
 
-const STORAGE_KEY = 'mingdao-activity';
+const STORAGE_KEY = 'career-compass-activity';
 
 function guard(): boolean {
   return typeof localStorage !== 'undefined';

@@ -1,10 +1,10 @@
-# 望塔（Lookout）— 设计文档
+# 世界线（Worldline）— 设计文档
 
 > 让全国各地的高中生知道自己的同龄人在做什么，有什么样的资源，在走什么样的路，打破信息差，减少"只会做题"的现象。
 
 ## 1. 产品定位
 
-| 维度 | 明道（Mingdao） | 望塔（Lookout） |
+| 维度 | 歧点（Mingdao） | 世界线（Worldline） |
 |------|----------------|----------------|
 | 目标用户 | 大学生 | 高中生 |
 | 核心问题 | "我该选什么职业？" | "同龄人在走什么路？用什么资源？" |
@@ -19,8 +19,8 @@
 
 ```
 maven/        → 通用库（独立 npm 包，发布到 npm）
-mingdao/      → 明道（独立项目，npm install @maven/*）
-lookout/      → 望塔（独立项目，npm install @maven/*）
+career-compass/      → 歧点（独立项目，npm install @maven/*）
+edutrack/      → 世界线（独立项目，npm install @maven/*）
 ```
 
 ### 2.1 maven（通用库）结构
@@ -51,10 +51,10 @@ maven/
 
 **技术栈：** TypeScript strict / tsup 构建 / pnpm workspace / changesets 发布 / vitest 测试
 
-### 2.2 lookout（望塔）结构
+### 2.2 edutrack（世界线）结构
 
 ```
-lookout/
+edutrack/
 ├── src/
 │   ├── app/               → Next.js App Router 页面
 │   ├── components/        → UI 组件
@@ -199,9 +199,9 @@ TimelineNode ──N:M── TrackCard ──1:N── ResourceEntry
 }
 ```
 
-### 与明道的视觉差异
+### 与歧点的视觉差异
 
-| | 明道 | 望塔 |
+| | 歧点 | 世界线 |
 |---|---|---|
 | 主色 | 陶土红 `#C96442` | 天蓝 `#2563EB` |
 | 底色 | 奶油白 `#FDF9F4` | 浅灰蓝 `#F0F4FF` |
@@ -221,7 +221,7 @@ TimelineNode ──N:M── TrackCard ──1:N── ResourceEntry
 - 知识库/赛道/资源/时间线内容
 - 系统提示词和 AI 角色
 - UI 组件（各 App 独立设计）
-- 设计 tokens（明道 terracotta，望塔天蓝）
+- 设计 tokens（歧点 terracotta，世界线天蓝）
 - 路由和页面结构
 
 ## 7. 范围与优先级
@@ -229,7 +229,7 @@ TimelineNode ──N:M── TrackCard ──1:N── ResourceEntry
 ### Phase 1：雏形（当前阶段）
 1. 搭建 `maven` 库（ai-core, ai-types, utils, stores, session）
 2. 发布 `@maven/*` 到 npm
-3. 搭建 `lookout` 项目
+3. 搭建 `edutrack` 项目
 4. 实现赛道浏览 + 详情（3-5 个种子赛道）
 5. 实现时间线页面
 6. 实现资源地图页面

@@ -39,7 +39,7 @@ export interface AppContext {
   nightVisits: number;
 }
 
-const STORAGE_KEY = 'mingdao-achievements';
+const STORAGE_KEY = 'career-compass-achievements';
 
 function guard(): boolean {
   return typeof localStorage !== 'undefined';
@@ -232,7 +232,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     progress: (_ctx) => ({ current: Math.min(getAchievements().length, 8), target: 8 }),
   },
   {
-    id: 'mingdao-master', title: '歧点大师', icon: '💎', category: 'special',
+    id: 'career-compass-master', title: '歧点大师', icon: '💎', category: 'special',
     description: '解锁 15 枚以上成就徽章', condition: '解锁 15 枚徽章',
     check: (_ctx) => getAchievements().length >= 15,
     progress: (_ctx) => ({ current: Math.min(getAchievements().length, 15), target: 15 }),

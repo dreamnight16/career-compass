@@ -113,7 +113,7 @@ export interface AppContext {
   nightVisits: number;
 }
 
-const STORAGE_KEY = 'mingdao-achievements';
+const STORAGE_KEY = 'career-compass-achievements';
 
 function guard(): boolean {
   return typeof localStorage !== 'undefined';
@@ -198,31 +198,31 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   // === 连续打卡 ===
   {
     id: 'streak-3', title: '三日之约', icon: '🔥', category: 'streak',
-    description: '连续 3 天使用明道', condition: '连续 3 天',
+    description: '连续 3 天使用歧点', condition: '连续 3 天',
     check: (ctx) => ctx.streakDays >= 3,
     progress: (ctx) => ({ current: Math.min(ctx.streakDays, 3), target: 3 }),
   },
   {
     id: 'streak-7', title: '七日之约', icon: '📅', category: 'streak',
-    description: '连续 7 天使用明道', condition: '连续 7 天',
+    description: '连续 7 天使用歧点', condition: '连续 7 天',
     check: (ctx) => ctx.streakDays >= 7,
     progress: (ctx) => ({ current: Math.min(ctx.streakDays, 7), target: 7 }),
   },
   {
     id: 'streak-14', title: '半月坚持', icon: '🌙', category: 'streak',
-    description: '连续 14 天使用明道', condition: '连续 14 天',
+    description: '连续 14 天使用歧点', condition: '连续 14 天',
     check: (ctx) => ctx.streakDays >= 14,
     progress: (ctx) => ({ current: Math.min(ctx.streakDays, 14), target: 14 }),
   },
   {
     id: 'streak-30', title: '月度冠军', icon: '👑', category: 'streak',
-    description: '连续 30 天使用明道', condition: '连续 30 天',
+    description: '连续 30 天使用歧点', condition: '连续 30 天',
     check: (ctx) => ctx.streakDays >= 30,
     progress: (ctx) => ({ current: Math.min(ctx.streakDays, 30), target: 30 }),
   },
   {
     id: 'streak-90', title: '季常青', icon: '🌲', category: 'streak',
-    description: '连续 90 天使用明道', condition: '连续 90 天',
+    description: '连续 90 天使用歧点', condition: '连续 90 天',
     check: (ctx) => ctx.streakDays >= 90,
     progress: (ctx) => ({ current: Math.min(ctx.streakDays, 90), target: 90 }),
   },
@@ -306,7 +306,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     progress: (_ctx) => ({ current: Math.min(getAchievements().length, 8), target: 8 }),
   },
   {
-    id: 'mingdao-master', title: '明道大师', icon: '💎', category: 'special',
+    id: 'career-compass-master', title: '歧点大师', icon: '💎', category: 'special',
     description: '解锁 15 枚以上成就徽章', condition: '解锁 15 枚徽章',
     check: (_ctx) => getAchievements().length >= 15,
     progress: (_ctx) => ({ current: Math.min(getAchievements().length, 15), target: 15 }),
@@ -407,14 +407,14 @@ describe('achievement-store', () => {
 
     it('returns stored achievements', () => {
       const now = new Date().toISOString();
-      store.set('mingdao-achievements', JSON.stringify([{ id: 'first-route', unlockedAt: now }]));
+      store.set('career-compass-achievements', JSON.stringify([{ id: 'first-route', unlockedAt: now }]));
       const result = getAchievements();
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe('first-route');
     });
 
     it('clears corrupted data and returns empty array', () => {
-      store.set('mingdao-achievements', 'not-json');
+      store.set('career-compass-achievements', 'not-json');
       expect(getAchievements()).toEqual([]);
     });
   });
@@ -433,7 +433,7 @@ describe('achievement-store', () => {
     });
 
     it('does not re-unlock already unlocked achievements', () => {
-      store.set('mingdao-achievements', JSON.stringify([{ id: 'first-route', unlockedAt: new Date().toISOString() }]));
+      store.set('career-compass-achievements', JSON.stringify([{ id: 'first-route', unlockedAt: new Date().toISOString() }]));
       const ctx = emptyCtx({ routes: [{ id: 'r1', title: 'test', nodes: [], status: 'active' } as never] });
       const result = checkAndUnlock(ctx);
       expect(result.some(a => a.id === 'first-route')).toBe(false);
@@ -494,7 +494,7 @@ describe('achievement-store', () => {
 
   describe('getAchievementCount', () => {
     it('returns count of unlocked achievements', () => {
-      store.set('mingdao-achievements', JSON.stringify([
+      store.set('career-compass-achievements', JSON.stringify([
         { id: 'a', unlockedAt: new Date().toISOString() },
         { id: 'b', unlockedAt: new Date().toISOString() },
       ]));
@@ -550,7 +550,7 @@ git commit -m "feat: add achievement store with 20 badge definitions and unlock 
 // src/lib/streak-store.ts
 /** 连续访问天数追踪 — localStorage */
 
-const STORAGE_KEY = 'mingdao-streak';
+const STORAGE_KEY = 'career-compass-streak';
 
 function guard(): boolean {
   return typeof localStorage !== 'undefined';
@@ -695,7 +695,7 @@ describe('streak-store', () => {
         d.setDate(d.getDate() - (6 - i));
         dates.push(formatDateKey(d));
       }
-      store.set('mingdao-streak', JSON.stringify(dates));
+      store.set('career-compass-streak', JSON.stringify(dates));
       expect(getStreak()).toBe(7);
     });
   });
@@ -705,7 +705,7 @@ describe('streak-store', () => {
       const today = new Date();
       const d1 = formatDateKey(new Date(today.getTime() - 2 * 86400000));
       const d2 = formatDateKey(new Date(today.getTime() - 1 * 86400000));
-      store.set('mingdao-streak', JSON.stringify([d2, d1]));
+      store.set('career-compass-streak', JSON.stringify([d2, d1]));
       const history = getStreakHistory();
       expect(history[0] <= history[1]).toBe(true);
     });
@@ -713,7 +713,7 @@ describe('streak-store', () => {
     it('filters out dates older than 180 days', () => {
       const old = formatDateKey(new Date(Date.now() - 200 * 86400000));
       const recent = formatDateKey(new Date());
-      store.set('mingdao-streak', JSON.stringify([old, recent]));
+      store.set('career-compass-streak', JSON.stringify([old, recent]));
       const history = getStreakHistory();
       expect(history).not.toContain(old);
       expect(history).toContain(recent);
@@ -1557,7 +1557,7 @@ export function RouteBoard() {
     // Collect night visits count
     let nightVisits = 0;
     try {
-      const raw = localStorage.getItem('mingdao-streak');
+      const raw = localStorage.getItem('career-compass-streak');
       if (raw) {
         const dates: string[] = JSON.parse(raw);
         nightVisits = dates.filter(d => {
@@ -1711,32 +1711,32 @@ function LegacyRouteView() {
 
 // Helper functions to query localStorage state
 function getProfile(): Record<string, unknown> {
-  try { return JSON.parse(localStorage.getItem('mingdao-profile') || '{}'); }
+  try { return JSON.parse(localStorage.getItem('career-compass-profile') || '{}'); }
   catch { return {}; }
 }
 
 function getCompareViews(): string[] {
-  try { return JSON.parse(localStorage.getItem('mingdao-compare-views') || '[]'); }
+  try { return JSON.parse(localStorage.getItem('career-compass-compare-views') || '[]'); }
   catch { return []; }
 }
 
 function isPersonalityDone(): boolean {
-  try { return JSON.parse(localStorage.getItem('mingdao-personality-result') || 'false') !== false; }
+  try { return JSON.parse(localStorage.getItem('career-compass-personality-result') || 'false') !== false; }
   catch { return false; }
 }
 
 function getCompetencyCount(): number {
-  try { return JSON.parse(localStorage.getItem('mingdao-competency-count') || '0'); }
+  try { return JSON.parse(localStorage.getItem('career-compass-competency-count') || '0'); }
   catch { return 0; }
 }
 
 function isExplorerUsed(): boolean {
-  try { return localStorage.getItem('mingdao-explorer-used') === 'true'; }
+  try { return localStorage.getItem('career-compass-explorer-used') === 'true'; }
   catch { return false; }
 }
 
 function isSimDone(): boolean {
-  try { return localStorage.getItem('mingdao-sim-done') === 'true'; }
+  try { return localStorage.getItem('career-compass-sim-done') === 'true'; }
   catch { return false; }
 }
 
@@ -2430,7 +2430,7 @@ function exportData() {
   const data: Record<string, unknown> = {};
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
-    if (key && key.startsWith('mingdao-')) {
+    if (key && key.startsWith('career-compass-')) {
       try { data[key] = JSON.parse(localStorage.getItem(key) || 'null'); }
       catch { data[key] = localStorage.getItem(key); }
     }
@@ -2439,7 +2439,7 @@ function exportData() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `mingdao-export-${new Date().toISOString().slice(0, 10)}.json`;
+  a.download = `career-compass-export-${new Date().toISOString().slice(0, 10)}.json`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -2562,7 +2562,7 @@ export function ShareCard(_props: ShareCardProps) {
         {/* Decorative top bar */}
         <div className="absolute top-0 left-0 right-0 h-1" style={{ background: `linear-gradient(90deg, ${t.accent}, transparent)` }} />
 
-        <h3 className="text-lg font-bold mb-4">✦ 明道 · 我的职业成长报告 ✦</h3>
+        <h3 className="text-lg font-bold mb-4">✦ 歧点 · 我的职业成长报告 ✦</h3>
 
         {/* Metric chips */}
         <div className="flex gap-3 mb-4">
@@ -2905,7 +2905,7 @@ useEffect(() => {
   recordVisit();
   const activities = getActivities();
   if (activities.length === 0) {
-    addActivity({ type: 'first_visit', title: '首次使用明道', detail: '开启职业探索之旅' });
+    addActivity({ type: 'first_visit', title: '首次使用歧点', detail: '开启职业探索之旅' });
   }
   // Check achievements on every page load
   const streak = getStreak();
@@ -2923,21 +2923,21 @@ useEffect(() => {
 
 After career test save and personality test save, call:
 ```typescript
-localStorage.setItem('mingdao-personality-result', 'true');
+localStorage.setItem('career-compass-personality-result', 'true');
 window.dispatchEvent(new Event('profile-updated'));
 ```
 
 And after competency generation, increment counter:
 ```typescript
-const count = parseInt(localStorage.getItem('mingdao-competency-count') || '0') + 1;
-localStorage.setItem('mingdao-competency-count', String(count));
+const count = parseInt(localStorage.getItem('career-compass-competency-count') || '0') + 1;
+localStorage.setItem('career-compass-competency-count', String(count));
 ```
 
 - [ ] **Step 3: CareerExplorer.tsx** — Set explorer-used flag on mount
 
 ```typescript
 useEffect(() => {
-  localStorage.setItem('mingdao-explorer-used', 'true');
+  localStorage.setItem('career-compass-explorer-used', 'true');
 }, []);
 ```
 
@@ -2945,7 +2945,7 @@ useEffect(() => {
 
 When the result is displayed, add:
 ```typescript
-localStorage.setItem('mingdao-sim-done', 'true');
+localStorage.setItem('career-compass-sim-done', 'true');
 ```
 
 ```bash

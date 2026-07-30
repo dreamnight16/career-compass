@@ -24,7 +24,7 @@ export interface DecisionEntry {
   updatedAt: string;
 }
 
-const STORAGE_KEY = 'mingdao-decisions';
+const STORAGE_KEY = 'career-compass-decisions';
 const MIN_CONFIDENCE = 0;
 const MAX_CONFIDENCE = 100;
 

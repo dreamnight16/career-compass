@@ -46,7 +46,7 @@ export function CareerTest({ onComplete, onClose }: CareerTestProps) {
   const handleComplete = () => {
     const interests = RIASEC_QUESTIONS.filter(q => selectedInterests.has(q.id)).map(q => q.label);
     const values = VALUE_QUESTIONS.filter(q => selectedValues.has(q.id)).map(q => q.label);
-    localStorage.setItem('mingdao-test-result', JSON.stringify({ interests, values, date: new Date().toISOString() }));
+    localStorage.setItem('career-compass-test-result', JSON.stringify({ interests, values, date: new Date().toISOString() }));
     onComplete({ interests, values });
   };
 

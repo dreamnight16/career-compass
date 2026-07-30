@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 为明道增加能力差距诊断 + 精准资源匹配功能，让学生知道离目标职业差多远、具体提升什么能力、去哪学。
+**Goal:** 为歧点增加能力差距诊断 + 精准资源匹配功能，让学生知道离目标职业差多远、具体提升什么能力、去哪学。
 
 **Architecture:** 增量叠加 — 不改现有 RAG/对话系统主体，在之上新增能力生成 API、前端能力卡片组件、资源匹配器三个独立模块。AI prompt 驱动能力画像生成，前端本地状态管理，标签匹配连接能力到学习资源。
 
@@ -938,7 +938,7 @@ const [competencyLoading, setCompetencyLoading] = useState(false);
 const [competencyOccupation, setCompetencyOccupation] = useState('');
 
 // localStorage key
-const COMPETENCY_STORAGE_KEY = 'mingdao-competency';
+const COMPETENCY_STORAGE_KEY = 'career-compass-competency';
 
 // 页面加载时从 localStorage 恢复
 useEffect(() => {
@@ -1192,7 +1192,7 @@ export function buildSystemPrompt(
   }
 
   // 将 competencySection 插入到 profileSection 之后
-  return `你是 明道 的职业规划助手。...${atomsSection}${profileSection}${competencySection}`;
+  return `你是 歧点 的职业规划助手。...${atomsSection}${profileSection}${competencySection}`;
   //                                                                            ^^^^^^^^^^^^^^^^ 新增
 }
 ```

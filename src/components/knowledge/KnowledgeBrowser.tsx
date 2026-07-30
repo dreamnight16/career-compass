@@ -14,7 +14,7 @@ export function KnowledgeBrowser() {
   const [sortDir, setSortDir] = useState<'asc'|'desc'>('desc');
   const [page, setPage] = useState(0);
   const [bookmarks, setBookmarks] = useState<Set<string>>(() => {
-    try { return new Set(JSON.parse(localStorage.getItem('mingdao-bookmarks')||'[]')); } catch { return new Set(); }
+    try { return new Set(JSON.parse(localStorage.getItem('career-compass-bookmarks')||'[]')); } catch { return new Set(); }
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -41,7 +41,7 @@ export function KnowledgeBrowser() {
 
   const toggleBm = (id: string) => {
     const next = new Set(bookmarks); next.has(id) ? next.delete(id) : next.add(id);
-    setBookmarks(next); localStorage.setItem('mingdao-bookmarks', JSON.stringify([...next]));
+    setBookmarks(next); localStorage.setItem('career-compass-bookmarks', JSON.stringify([...next]));
   };
 
   const allFields = useMemo(() => [...new Set(allRows.map(r => r.field))], [allRows]);

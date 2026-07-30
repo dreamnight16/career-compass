@@ -103,7 +103,7 @@ const OUTLOOK_MAP = { rising: '📈 上升', stable: '➡️ 稳定', declining:
 
 export function CareerExplorer() {
   useEffect(() => {
-    try { localStorage.setItem('mingdao-explorer-used', 'true'); } catch { /* ignore */ }
+    try { localStorage.setItem('career-compass-explorer-used', 'true'); } catch { /* ignore */ }
   }, []);
 
   const [search, setSearch] = useState('');

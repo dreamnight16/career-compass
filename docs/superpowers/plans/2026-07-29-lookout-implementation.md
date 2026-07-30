@@ -1,10 +1,10 @@
-# 望塔（Lookout）Implementation Plan
+# 世界线（Worldline）Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build two repositories — `maven` (shared AI+data npm library) and `lookout` (high school information gap platform) — plus seed content for 3-5 tracks.
+**Goal:** Build two repositories — `maven` (shared AI+data npm library) and `edutrack` (high school information gap platform) — plus seed content for 3-5 tracks.
 
-**Architecture:** Three independent repositories. `maven` publishes 5 npm packages consumed by `lookout`. `lookout` is a Next.js 14 App Router app with 5 pages (home, track detail, timeline, resources, AI ask), file-driven content (Markdown/JSON), and a sky-blue youthful visual design.
+**Architecture:** Three independent repositories. `maven` publishes 5 npm packages consumed by `edutrack`. `edutrack` is a Next.js 14 App Router app with 5 pages (home, track detail, timeline, resources, AI ask), file-driven content (Markdown/JSON), and a sky-blue youthful visual design.
 
 **Tech Stack:** TypeScript strict, Next.js 14 App Router, Tailwind CSS 3, tsup (maven build), pnpm workspace (maven only), vitest, lucide-react, Vercel deploy.
 
@@ -1263,19 +1263,19 @@ cd maven && git add packages/session/ && git commit -m "feat(session): add gener
 
 ---
 
-## Part B: lookout — High School Information Platform
+## Part B: edutrack — High School Information Platform
 
-### Task B1: Scaffold lookout Next.js project
+### Task B1: Scaffold edutrack Next.js project
 
 **Files:**
-- Create: `lookout/package.json`
-- Create: `lookout/tsconfig.json`
-- Create: `lookout/next.config.js`
-- Create: `lookout/tailwind.config.ts`
-- Create: `lookout/postcss.config.js`
-- Create: `lookout/src/app/globals.css`
-- Create: `lookout/src/app/layout.tsx`
-- Create: `lookout/.gitignore`
+- Create: `edutrack/package.json`
+- Create: `edutrack/tsconfig.json`
+- Create: `edutrack/next.config.js`
+- Create: `edutrack/tailwind.config.ts`
+- Create: `edutrack/postcss.config.js`
+- Create: `edutrack/src/app/globals.css`
+- Create: `edutrack/src/app/layout.tsx`
+- Create: `edutrack/.gitignore`
 
 **Produces:** Working Next.js 14 project with Tailwind + sky-blue design tokens.
 
@@ -1283,7 +1283,7 @@ cd maven && git add packages/session/ && git commit -m "feat(session): add gener
 
 ```json
 {
-  "name": "lookout",
+  "name": "edutrack",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -1428,7 +1428,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: '望塔 — 看见同龄人的路',
+  title: '世界线 — 看见同龄人的路',
   description: '全国各地高中生在走什么路、用什么资源、什么时候做什么。打破信息差。',
 };
 
@@ -1454,13 +1454,13 @@ out/
 
 - [ ] **Step 9: Install and verify dev server**
 
-Run: `cd lookout && npm install && npm run dev`
+Run: `cd edutrack && npm install && npm run dev`
 Expected: Next.js dev server starts on :3000, visit shows empty page with blue-ish background
 
 - [ ] **Step 10: Commit**
 
 ```bash
-cd lookout && git init && git add -A && git commit -m "chore: scaffold lookout Next.js 14 project with sky-blue design system"
+cd edutrack && git init && git add -A && git commit -m "chore: scaffold edutrack Next.js 14 project with sky-blue design system"
 ```
 
 ---
@@ -1468,12 +1468,12 @@ cd lookout && git init && git add -A && git commit -m "chore: scaffold lookout N
 ### Task B2: Data model types + seed content
 
 **Files:**
-- Create: `lookout/src/types/index.ts`
-- Create: `lookout/src/data/tracks/informatics-olympiad.json`
-- Create: `lookout/src/data/tracks/strong-base-plan.json`
-- Create: `lookout/src/data/tracks/comprehensive-evaluation.json`
-- Create: `lookout/src/data/resources/index.json`
-- Create: `lookout/src/data/timeline/index.json`
+- Create: `edutrack/src/types/index.ts`
+- Create: `edutrack/src/data/tracks/informatics-olympiad.json`
+- Create: `edutrack/src/data/tracks/strong-base-plan.json`
+- Create: `edutrack/src/data/tracks/comprehensive-evaluation.json`
+- Create: `edutrack/src/data/resources/index.json`
+- Create: `edutrack/src/data/timeline/index.json`
 
 **Produces:** Type definitions + 3 seed tracks with resources and timeline nodes.
 
@@ -1748,7 +1748,7 @@ Create `src/data/timeline/index.json`:
 ```json
 [
   { "grade": "高一上", "month": 9, "event": "CSP-J/S 第一轮认证报名", "action": "关注NOI官网，及时报名", "tracks": ["informatics-olympiad"], "deadline": "2025-09-15" },
-  { "grade": "高一上", "month": 9, "event": "开始了解各条升学路径", "action": "浏览望塔赛道页面，了解竞赛、强基、综评的区别", "tracks": ["informatics-olympiad", "strong-base-plan", "comprehensive-evaluation"] },
+  { "grade": "高一上", "month": 9, "event": "开始了解各条升学路径", "action": "浏览世界线赛道页面，了解竞赛、强基、综评的区别", "tracks": ["informatics-olympiad", "strong-base-plan", "comprehensive-evaluation"] },
   { "grade": "高一上", "month": 10, "event": "CSP-S 第二轮", "action": "参加认证，检验水平", "tracks": ["informatics-olympiad"] },
   { "grade": "高一下", "month": 3, "event": "省选（部分省份）", "action": "进入省队的关键一战", "tracks": ["informatics-olympiad"] },
   { "grade": "高二上", "month": 10, "event": "NOIP 联赛", "action": "冲刺省一等奖", "tracks": ["informatics-olympiad"] },
@@ -1764,7 +1764,7 @@ Create `src/data/timeline/index.json`:
 - [ ] **Step 7: Commit**
 
 ```bash
-cd lookout && git add src/types/ src/data/ && git commit -m "feat(data): add types + 3 seed tracks with resources and timeline"
+cd edutrack && git add src/types/ src/data/ && git commit -m "feat(data): add types + 3 seed tracks with resources and timeline"
 ```
 
 ---
@@ -1772,12 +1772,12 @@ cd lookout && git add src/types/ src/data/ && git commit -m "feat(data): add typ
 ### Task B3: Data loaders
 
 **Files:**
-- Create: `lookout/src/lib/tracks.ts`
-- Create: `lookout/src/lib/resources.ts`
-- Create: `lookout/src/lib/timeline.ts`
-- Create: `lookout/src/lib/tracks.test.ts`
-- Create: `lookout/src/lib/resources.test.ts`
-- Create: `lookout/src/lib/timeline.test.ts`
+- Create: `edutrack/src/lib/tracks.ts`
+- Create: `edutrack/src/lib/resources.ts`
+- Create: `edutrack/src/lib/timeline.ts`
+- Create: `edutrack/src/lib/tracks.test.ts`
+- Create: `edutrack/src/lib/resources.test.ts`
+- Create: `edutrack/src/lib/timeline.test.ts`
 
 **Produces:** Three data-loading modules that read content from JSON files.
 
@@ -1819,7 +1819,7 @@ describe('tracks lib', () => {
 
 - [ ] **Step 2: Run to verify failure**
 
-Run: `cd lookout && npx vitest run`
+Run: `cd edutrack && npx vitest run`
 Expected: FAIL
 
 - [ ] **Step 3: Implement tracks.ts**
@@ -1926,13 +1926,13 @@ export function getGrades(): string[] {
 
 - [ ] **Step 6: Run tests to verify pass**
 
-Run: `cd lookout && npx vitest run`
+Run: `cd edutrack && npx vitest run`
 Expected: tracks tests PASS
 
 - [ ] **Step 7: Commit**
 
 ```bash
-cd lookout && git add src/lib/ && git commit -m "feat(lib): add tracks, resources, timeline data loaders"
+cd edutrack && git add src/lib/ && git commit -m "feat(lib): add tracks, resources, timeline data loaders"
 ```
 
 ---
@@ -1940,9 +1940,9 @@ cd lookout && git add src/lib/ && git commit -m "feat(lib): add tracks, resource
 ### Task B4: Shared UI components
 
 **Files:**
-- Create: `lookout/src/components/shared/TagBadge.tsx`
-- Create: `lookout/src/components/shared/EmptyState.tsx`
-- Create: `lookout/src/components/shared/LoadingSkeleton.tsx`
+- Create: `edutrack/src/components/shared/TagBadge.tsx`
+- Create: `edutrack/src/components/shared/EmptyState.tsx`
+- Create: `edutrack/src/components/shared/LoadingSkeleton.tsx`
 
 **Produces:** TagBadge, EmptyState, LoadingSkeleton — used across all pages.
 
@@ -2010,7 +2010,7 @@ export function LoadingSkeleton({ count = 3, height = 'h-32' }: LoadingSkeletonP
 - [ ] **Step 4: Commit**
 
 ```bash
-cd lookout && git add src/components/shared/ && git commit -m "feat(ui): add TagBadge, EmptyState, LoadingSkeleton shared components"
+cd edutrack && git add src/components/shared/ && git commit -m "feat(ui): add TagBadge, EmptyState, LoadingSkeleton shared components"
 ```
 
 ---
@@ -2018,9 +2018,9 @@ cd lookout && git add src/components/shared/ && git commit -m "feat(ui): add Tag
 ### Task B5: Layout — BottomNav + PageHeader
 
 **Files:**
-- Create: `lookout/src/components/layout/BottomNav.tsx`
-- Create: `lookout/src/components/layout/PageHeader.tsx`
-- Create: `lookout/src/components/layout/BottomNav.test.tsx`
+- Create: `edutrack/src/components/layout/BottomNav.tsx`
+- Create: `edutrack/src/components/layout/PageHeader.tsx`
+- Create: `edutrack/src/components/layout/BottomNav.test.tsx`
 
 **Produces:** Persistent bottom tab navigation + reusable page header.
 
@@ -2094,7 +2094,7 @@ export function PageHeader({ title, subtitle }: PageHeaderProps) {
 - [ ] **Step 3: Commit**
 
 ```bash
-cd lookout && git add src/components/layout/ && git commit -m "feat(layout): add BottomNav and PageHeader"
+cd edutrack && git add src/components/layout/ && git commit -m "feat(layout): add BottomNav and PageHeader"
 ```
 
 ---
@@ -2102,9 +2102,9 @@ cd lookout && git add src/components/layout/ && git commit -m "feat(layout): add
 ### Task B6: Home page — track discovery
 
 **Files:**
-- Create: `lookout/src/components/home/TrackCard.tsx`
-- Create: `lookout/src/components/home/CategoryFilter.tsx`
-- Create: `lookout/src/app/page.tsx`
+- Create: `edutrack/src/components/home/TrackCard.tsx`
+- Create: `edutrack/src/components/home/CategoryFilter.tsx`
+- Create: `edutrack/src/app/page.tsx`
 
 **Produces:** Home page with category filter + track card grid.
 
@@ -2227,7 +2227,7 @@ export default function HomePage() {
   return (
     <>
       <PageHeader
-        title="望塔"
+        title="世界线"
         subtitle={`看看全国同龄人在走什么路 · ${allTracks.length} 条赛道`}
       />
       <CategoryFilter selected={category} onSelect={setCategory} />
@@ -2250,13 +2250,13 @@ export default function HomePage() {
 
 - [ ] **Step 4: Verify dev server**
 
-Run: `cd lookout && npm run dev`
+Run: `cd edutrack && npm run dev`
 Expected: Homepage at localhost:3000 shows 3 track cards + bottom nav
 
 - [ ] **Step 5: Commit**
 
 ```bash
-cd lookout && git add src/app/page.tsx src/components/home/ && git commit -m "feat(home): add track discovery with category filter"
+cd edutrack && git add src/app/page.tsx src/components/home/ && git commit -m "feat(home): add track discovery with category filter"
 ```
 
 ---
@@ -2264,10 +2264,10 @@ cd lookout && git add src/app/page.tsx src/components/home/ && git commit -m "fe
 ### Task B7: Track detail page
 
 **Files:**
-- Create: `lookout/src/components/track/TrackOverview.tsx`
-- Create: `lookout/src/components/track/TrackTimeline.tsx`
-- Create: `lookout/src/components/track/TrackResources.tsx`
-- Create: `lookout/src/app/tracks/[id]/page.tsx`
+- Create: `edutrack/src/components/track/TrackOverview.tsx`
+- Create: `edutrack/src/components/track/TrackTimeline.tsx`
+- Create: `edutrack/src/components/track/TrackResources.tsx`
+- Create: `edutrack/src/app/tracks/[id]/page.tsx`
 
 **Produces:** Full track detail: what it is, who it's for, timeline, resources.
 
@@ -2430,7 +2430,7 @@ export default function TrackPage({ params }: TrackPageProps) {
 - [ ] **Step 5: Commit**
 
 ```bash
-cd lookout && git add src/app/tracks/ src/components/track/ && git commit -m "feat(track): add track detail page with overview, timeline, resources"
+cd edutrack && git add src/app/tracks/ src/components/track/ && git commit -m "feat(track): add track detail page with overview, timeline, resources"
 ```
 
 ---
@@ -2438,9 +2438,9 @@ cd lookout && git add src/app/tracks/ src/components/track/ && git commit -m "fe
 ### Task B8: Timeline page
 
 **Files:**
-- Create: `lookout/src/components/timeline/GradeSelector.tsx`
-- Create: `lookout/src/components/timeline/TimelineList.tsx`
-- Create: `lookout/src/app/timeline/page.tsx`
+- Create: `edutrack/src/components/timeline/GradeSelector.tsx`
+- Create: `edutrack/src/components/timeline/TimelineList.tsx`
+- Create: `edutrack/src/app/timeline/page.tsx`
 
 **Produces:** Timeline page with grade selector + event list.
 
@@ -2587,7 +2587,7 @@ export default function TimelinePage() {
 - [ ] **Step 4: Commit**
 
 ```bash
-cd lookout && git add src/app/timeline/ src/components/timeline/ && git commit -m "feat(timeline): add timeline page with grade filter"
+cd edutrack && git add src/app/timeline/ src/components/timeline/ && git commit -m "feat(timeline): add timeline page with grade filter"
 ```
 
 ---
@@ -2595,10 +2595,10 @@ cd lookout && git add src/app/timeline/ src/components/timeline/ && git commit -
 ### Task B9: Resources page
 
 **Files:**
-- Create: `lookout/src/components/resources/ResourceCard.tsx`
-- Create: `lookout/src/components/resources/ResourceFilter.tsx`
-- Create: `lookout/src/components/resources/ResourceSearch.tsx`
-- Create: `lookout/src/app/resources/page.tsx`
+- Create: `edutrack/src/components/resources/ResourceCard.tsx`
+- Create: `edutrack/src/components/resources/ResourceFilter.tsx`
+- Create: `edutrack/src/components/resources/ResourceSearch.tsx`
+- Create: `edutrack/src/app/resources/page.tsx`
 
 **Produces:** Resources page with search, type/cost filter, card grid.
 
@@ -2808,7 +2808,7 @@ export default function ResourcesPage() {
 - [ ] **Step 5: Commit**
 
 ```bash
-cd lookout && git add src/app/resources/ src/components/resources/ && git commit -m "feat(resources): add resource library with search and filters"
+cd edutrack && git add src/app/resources/ src/components/resources/ && git commit -m "feat(resources): add resource library with search and filters"
 ```
 
 ---
@@ -2816,9 +2816,9 @@ cd lookout && git add src/app/resources/ src/components/resources/ && git commit
 ### Task B10: Ask page — AI-powered search
 
 **Files:**
-- Create: `lookout/src/components/ask/AskInput.tsx`
-- Create: `lookout/src/components/ask/AskResult.tsx`
-- Create: `lookout/src/app/ask/page.tsx`
+- Create: `edutrack/src/components/ask/AskInput.tsx`
+- Create: `edutrack/src/components/ask/AskResult.tsx`
+- Create: `edutrack/src/app/ask/page.tsx`
 
 **Produces:** Simple AI-assisted search: student types situation → gets track + resource recommendations.
 
@@ -2992,13 +2992,13 @@ export default function AskPage() {
 
 - [ ] **Step 4: Full build verification**
 
-Run: `cd lookout && npm run build`
+Run: `cd edutrack && npm run build`
 Expected: Next.js production build succeeds
 
 - [ ] **Step 5: Commit**
 
 ```bash
-cd lookout && git add src/app/ask/ src/components/ask/ && git commit -m "feat(ask): add AI-assisted search page"
+cd edutrack && git add src/app/ask/ src/components/ask/ && git commit -m "feat(ask): add AI-assisted search page"
 ```
 
 ---
@@ -3010,12 +3010,12 @@ After all tasks complete:
 - [ ] `maven/`: `pnpm run build` passes (all 5 packages)
 - [ ] `maven/`: `pnpm run test` passes
 - [ ] `maven/`: `pnpm run typecheck` passes
-- [ ] `lookout/`: `npm run build` passes (Next.js production build)
-- [ ] `lookout/`: `npm run typecheck` passes
-- [ ] `lookout/`: `npm run test` passes
-- [ ] `lookout/`: Visit `localhost:3000` — home page shows 3 track cards
-- [ ] `lookout/`: Click a track card → detail page with overview + timeline + resources
-- [ ] `lookout/`: Visit `/timeline` → grade filter + event list
-- [ ] `lookout/`: Visit `/resources` → search + filter + card grid
-- [ ] `lookout/`: Visit `/ask` → type query → see track + resource matches
+- [ ] `edutrack/`: `npm run build` passes (Next.js production build)
+- [ ] `edutrack/`: `npm run typecheck` passes
+- [ ] `edutrack/`: `npm run test` passes
+- [ ] `edutrack/`: Visit `localhost:3000` — home page shows 3 track cards
+- [ ] `edutrack/`: Click a track card → detail page with overview + timeline + resources
+- [ ] `edutrack/`: Visit `/timeline` → grade filter + event list
+- [ ] `edutrack/`: Visit `/resources` → search + filter + card grid
+- [ ] `edutrack/`: Visit `/ask` → type query → see track + resource matches
 - [ ] Bottom navigation works across all pages

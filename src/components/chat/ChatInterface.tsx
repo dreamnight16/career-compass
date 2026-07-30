@@ -15,7 +15,7 @@ const WELCOME_MESSAGE: ChatMessage = {
 export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     try {
-      const saved = localStorage.getItem('mingdao-messages');
+      const saved = localStorage.getItem('career-compass-messages');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed as ChatMessage[];
@@ -27,7 +27,7 @@ export function ChatInterface() {
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<Partial<UserProfile>>(() => {
     try {
-      const saved = localStorage.getItem('mingdao-profile');
+      const saved = localStorage.getItem('career-compass-profile');
       if (saved) return JSON.parse(saved);
     } catch { /* ignore */ }
     return {};
@@ -39,7 +39,7 @@ export function ChatInterface() {
   useEffect(() => {
     const load = () => {
       try {
-        const saved = localStorage.getItem('mingdao-profile');
+        const saved = localStorage.getItem('career-compass-profile');
         if (saved) setProfile(JSON.parse(saved));
       } catch { /* ignore */ }
     };
@@ -48,7 +48,7 @@ export function ChatInterface() {
   }, []);
 
   const persistMessages = useCallback((msgs: ChatMessage[]) => {
-    try { localStorage.setItem('mingdao-messages', JSON.stringify(msgs.slice(-50))); } catch { /* ignore */ }
+    try { localStorage.setItem('career-compass-messages', JSON.stringify(msgs.slice(-50))); } catch { /* ignore */ }
   }, []);
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
@@ -134,11 +134,11 @@ export function ChatInterface() {
       const extractedProfile = extractProfile(finalMessages);
       let merged: Partial<UserProfile>;
       try {
-        const stored = JSON.parse(localStorage.getItem('mingdao-profile') || '{}');
+        const stored = JSON.parse(localStorage.getItem('career-compass-profile') || '{}');
         merged = mergeProfile(stored, extractedProfile);
       } catch { merged = mergeProfile(profile, extractedProfile); }
       setProfile(merged);
-      localStorage.setItem('mingdao-profile', JSON.stringify(merged));
+      localStorage.setItem('career-compass-profile', JSON.stringify(merged));
       window.dispatchEvent(new Event('profile-updated'));
 
       // 记录活动

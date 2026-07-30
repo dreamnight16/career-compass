@@ -23,14 +23,14 @@ export function ResourceBrowser() {
   const [search, setSearch] = useState('');
   const [selectedCats, setSelectedCats] = useState<Set<string>>(new Set());
   const [saved, setSaved] = useState<Set<string>>(() => {
-    try { return new Set(JSON.parse(localStorage.getItem('mingdao-resource-bookmarks') || '[]')); } catch { return new Set(); }
+    try { return new Set(JSON.parse(localStorage.getItem('career-compass-resource-bookmarks') || '[]')); } catch { return new Set(); }
   });
 
   const toggleSaved = (url: string) => {
     const next = new Set(saved);
     if (next.has(url)) next.delete(url); else next.add(url);
     setSaved(next);
-    localStorage.setItem('mingdao-resource-bookmarks', JSON.stringify([...next]));
+    localStorage.setItem('career-compass-resource-bookmarks', JSON.stringify([...next]));
     import('@/lib/activity-store').then(({ addActivity }) => {
       addActivity({ type: 'resource_save', title: next.has(url) ? url : '', detail: '切换资源收藏' });
     });

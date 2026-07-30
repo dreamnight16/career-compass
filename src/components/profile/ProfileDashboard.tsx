@@ -15,11 +15,11 @@ import { Beaker, Brain, Download } from 'lucide-react';
 function exportAllData(): void {
   try {
     const KEYS = [
-      'mingdao-profile', 'mingdao-messages', 'mingdao-competency', 'mingdao-routes',
-      'mingdao-decisions', 'mingdao-activity', 'mingdao-bookmarks',
-      'mingdao-resource-bookmarks', 'mingdao-bigfive', 'mingdao-test-result',
+      'career-compass-profile', 'career-compass-messages', 'career-compass-competency', 'career-compass-routes',
+      'career-compass-decisions', 'career-compass-activity', 'career-compass-bookmarks',
+      'career-compass-resource-bookmarks', 'career-compass-bigfive', 'career-compass-test-result',
     ];
-    const data: Record<string, unknown> = { exportedAt: new Date().toISOString(), app: 'mingdao' };
+    const data: Record<string, unknown> = { exportedAt: new Date().toISOString(), app: 'career-compass' };
     for (const k of KEYS) {
       const raw = localStorage.getItem(k);
       if (raw) { try { data[k] = JSON.parse(raw); } catch { data[k] = raw; } }
@@ -28,7 +28,7 @@ function exportAllData(): void {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `mingdao-export-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `career-compass-export-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
   } catch {
@@ -63,13 +63,13 @@ export function ProfileDashboard() {
   useEffect(() => {
     const load = () => {
       try {
-        const saved = localStorage.getItem('mingdao-competency');
+        const saved = localStorage.getItem('career-compass-competency');
         if (saved) {
           const parsed = JSON.parse(saved);
           if (isValidStudentCompetency(parsed.studentCompetency)) setStudentCompetency(parsed.studentCompetency);
           if (isValidCompetencyProfile(parsed.competencyProfile)) { setCompetencyProfile(parsed.competencyProfile); setShowCompetency(true); }
         }
-        const profileSaved = localStorage.getItem('mingdao-profile');
+        const profileSaved = localStorage.getItem('career-compass-profile');
         if (profileSaved) setProfile(JSON.parse(profileSaved));
       } catch { /* ignore */ }
     };
@@ -90,7 +90,7 @@ export function ProfileDashboard() {
         ? prev.selfAssessments.map((a, i) => (i === existingIdx ? assessment : a))
         : [...prev.selfAssessments, assessment];
       const updated = { ...prev, selfAssessments };
-      try { localStorage.setItem('mingdao-competency', JSON.stringify({ studentCompetency: updated, competencyProfile })); } catch {}
+      try { localStorage.setItem('career-compass-competency', JSON.stringify({ studentCompetency: updated, competencyProfile })); } catch {}
       return updated;
     });
   };
@@ -106,13 +106,13 @@ export function ProfileDashboard() {
         setCompetencyProfile(json.data);
         setStudentCompetency((prev) => {
           const updated = { ...prev, targetCareer: occupation };
-          try { localStorage.setItem('mingdao-competency', JSON.stringify({ studentCompetency: updated, competencyProfile: json.data })); } catch {}
+          try { localStorage.setItem('career-compass-competency', JSON.stringify({ studentCompetency: updated, competencyProfile: json.data })); } catch {}
           return updated;
         });
         setShowCompetency(true);
         addActivity({ type: 'competency', title: `生成能力画像: ${occupation}` });
-        const count = parseInt(localStorage.getItem('mingdao-competency-count') || '0', 10) + 1;
-        localStorage.setItem('mingdao-competency-count', String(count));
+        const count = parseInt(localStorage.getItem('career-compass-competency-count') || '0', 10) + 1;
+        localStorage.setItem('career-compass-competency-count', String(count));
         toast('success', '能力画像已生成');
       } else {
         toast('error', json.error || '生成失败，请稍后重试');
@@ -144,8 +144,8 @@ export function ProfileDashboard() {
               lifestyle: [...new Set([...(profile.lifestyle || []), ...result.values])],
             };
             setProfile(updated);
-            localStorage.setItem('mingdao-profile', JSON.stringify(updated));
-            localStorage.setItem('mingdao-personality-result', 'true');
+            localStorage.setItem('career-compass-profile', JSON.stringify(updated));
+            localStorage.setItem('career-compass-personality-result', 'true');
             window.dispatchEvent(new Event('profile-updated'));
             addActivity({ type: 'profile_update', title: '完成职业兴趣测评' });
             setActiveTest(null);
@@ -159,8 +159,8 @@ export function ProfileDashboard() {
           onComplete={(desc) => {
             const updated = { ...profile, lifestyle: [...new Set([...(profile.lifestyle || []), `BigFive:${desc}`])] };
             setProfile(updated);
-            localStorage.setItem('mingdao-profile', JSON.stringify(updated));
-            localStorage.setItem('mingdao-personality-result', 'true');
+            localStorage.setItem('career-compass-profile', JSON.stringify(updated));
+            localStorage.setItem('career-compass-personality-result', 'true');
             window.dispatchEvent(new Event('profile-updated'));
             addActivity({ type: 'profile_update', title: '完成大五人格测评' });
             setActiveTest(null);
@@ -205,7 +205,7 @@ export function ProfileDashboard() {
               profile={competencyProfile}
               selfAssessments={studentCompetency.selfAssessments}
               onAssess={handleAssess}
-              onRefresh={() => { setShowCompetency(false); setCompetencyProfile(null); setCompetencyOccupation(''); try { localStorage.removeItem('mingdao-competency'); } catch {} }}
+              onRefresh={() => { setShowCompetency(false); setCompetencyProfile(null); setCompetencyOccupation(''); try { localStorage.removeItem('career-compass-competency'); } catch {} }}
             />
           ) : (
             <div className="rounded-lg border border-dashed border-border/60 bg-card/40 px-4 py-3">

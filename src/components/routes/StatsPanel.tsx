@@ -164,7 +164,7 @@ function exportData() {
   const data: Record<string, unknown> = {};
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
-    if (key && key.startsWith('mingdao-')) {
+    if (key && key.startsWith('career-compass-')) {
       try { data[key] = JSON.parse(localStorage.getItem(key) || 'null'); }
       catch { data[key] = localStorage.getItem(key); }
     }
@@ -173,7 +173,7 @@ function exportData() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `mingdao-export-${new Date().toISOString().slice(0, 10)}.json`;
+  a.download = `career-compass-export-${new Date().toISOString().slice(0, 10)}.json`;
   a.click();
   URL.revokeObjectURL(url);
 }

@@ -1,7 +1,7 @@
 // src/lib/streak-store.ts
 /** 连续访问天数追踪 — localStorage */
 
-const STORAGE_KEY = 'mingdao-streak';
+const STORAGE_KEY = 'career-compass-streak';
 
 function guard(): boolean {
   return typeof localStorage !== 'undefined';

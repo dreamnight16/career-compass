@@ -1,10 +1,10 @@
-# 明道 UI 重构设计文档
+# 歧点 UI 重构设计文档
 
 > 版本: v1.0 | 日期: 2026-07-16 | 状态: 设计确认
 
 ## 1. 目标
 
-将明道从单页聊天工具升级为完整产品界面：
+将歧点从单页聊天工具升级为完整产品界面：
 - 先落地页介绍，再进入主界面
 - 侧边栏导航四模块：AI规划师、个人画像、数据库、资源库
 - 用户使用记录与历史信息展示
@@ -34,7 +34,7 @@
 **第一屏（全屏氛围）**
 
 - 背景：暖色渐变（`--background` → `--primary/10`），叠加 SVG 噪点纹理
-- 中央：「明道」大标题（~6rem, `font-bold`）+ 副标题「为你探明前路」
+- 中央：「歧点」大标题（~6rem, `font-bold`）+ 副标题「为你探明前路」
 - 三行解释文字，字号递减形成节奏：
   > 不是告诉你该选哪条路
   > 而是让你看清每条路的样子
@@ -52,7 +52,7 @@
   - `Database` 数据库 — 300+职业数据点
   - `Library` 资源库 — 300+精选学习资源
 - 每卡片：lucide 图标 + 模块名 + 一行描述
-- CTA「进入明道 →」
+- CTA「进入歧点 →」
 
 ### 图标方案
 
@@ -91,7 +91,7 @@
 ### 侧边栏
 
 - **宽度**：展开 220px，收起 64px（仅图标），默认展开，可折叠
-- **顶部**：「明道」Logo + 品牌名（收起时仅 Logo）
+- **顶部**：「歧点」Logo + 品牌名（收起时仅 Logo）
 - **四个导航项**：
   - `Sparkles` AI规划师 / Coach
   - `UserCircle` 个人画像 / Profile
@@ -159,11 +159,11 @@
 ### 数据存储
 
 全部 localStorage：
-- `mingdao-messages`：对话历史
-- `mingdao-profile`：用户画像
-- `mingdao-competency`：能力诊断数据
-- `mingdao-activity`：活动记录（新增）
-- `mingdao-settings`：用户偏好（新增，如侧边栏折叠状态）
+- `career-compass-messages`：对话历史
+- `career-compass-profile`：用户画像
+- `career-compass-competency`：能力诊断数据
+- `career-compass-activity`：活动记录（新增）
+- `career-compass-settings`：用户偏好（新增，如侧边栏折叠状态）
 
 不引入后端数据库。
 
@@ -173,7 +173,7 @@
 
 ```
 /                  → 落地页（首次访问/未开始过对话）
-/main              → 主界面（已使用过/点击「进入明道」）
+/main              → 主界面（已使用过/点击「进入歧点」）
   /main?tab=coach  → AI规划师（默认）
   /main?tab=profile → 个人画像
   /main?tab=knowledge → 数据库

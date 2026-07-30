@@ -41,7 +41,7 @@ describe('streak-store', () => {
     });
 
     it('heals corrupted storage and records today', () => {
-      store.set('mingdao-streak', JSON.stringify({ not: 'an array' }));
+      store.set('career-compass-streak', JSON.stringify({ not: 'an array' }));
       recordVisit();
       const history = getStreakHistory();
       expect(history).toContain(formatDateKey(new Date()));
@@ -49,7 +49,7 @@ describe('streak-store', () => {
     });
 
     it('filters non-string entries when recording', () => {
-      store.set('mingdao-streak', JSON.stringify([123, null, formatDateKey(new Date(Date.now() - 86400000))]));
+      store.set('career-compass-streak', JSON.stringify([123, null, formatDateKey(new Date(Date.now() - 86400000))]));
       recordVisit();
       const history = getStreakHistory();
       expect(history.every(d => typeof d === 'string')).toBe(true);
@@ -75,7 +75,7 @@ describe('streak-store', () => {
         d.setDate(d.getDate() - (6 - i));
         dates.push(formatDateKey(d));
       }
-      store.set('mingdao-streak', JSON.stringify(dates));
+      store.set('career-compass-streak', JSON.stringify(dates));
       expect(getStreak()).toBe(7);
     });
   });
@@ -85,7 +85,7 @@ describe('streak-store', () => {
       const today = new Date();
       const d1 = formatDateKey(new Date(today.getTime() - 2 * 86400000));
       const d2 = formatDateKey(new Date(today.getTime() - 1 * 86400000));
-      store.set('mingdao-streak', JSON.stringify([d2, d1]));
+      store.set('career-compass-streak', JSON.stringify([d2, d1]));
       const history = getStreakHistory();
       expect(history[0] <= history[1]).toBe(true);
     });
@@ -93,7 +93,7 @@ describe('streak-store', () => {
     it('filters out dates older than 180 days', () => {
       const old = formatDateKey(new Date(Date.now() - 200 * 86400000));
       const recent = formatDateKey(new Date());
-      store.set('mingdao-streak', JSON.stringify([old, recent]));
+      store.set('career-compass-streak', JSON.stringify([old, recent]));
       const history = getStreakHistory();
       expect(history).not.toContain(old);
       expect(history).toContain(recent);

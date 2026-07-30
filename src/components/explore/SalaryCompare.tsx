@@ -22,9 +22,9 @@ export function SalaryCompare() {
   // Track compare views for achievements
   useEffect(() => {
     try {
-      const existing: string[] = JSON.parse(localStorage.getItem('mingdao-compare-views') || '[]');
+      const existing: string[] = JSON.parse(localStorage.getItem('career-compass-compare-views') || '[]');
       if (!existing.includes(mode)) {
-        localStorage.setItem('mingdao-compare-views', JSON.stringify([...existing, mode]));
+        localStorage.setItem('career-compass-compare-views', JSON.stringify([...existing, mode]));
       }
     } catch { /* ignore */ }
   }, [mode]);

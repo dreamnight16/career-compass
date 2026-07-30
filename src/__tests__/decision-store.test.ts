@@ -9,7 +9,7 @@ import {
   type DecisionOption,
 } from '@/lib/decision-store';
 
-const STORAGE_KEY = 'mingdao-decisions';
+const STORAGE_KEY = 'career-compass-decisions';
 
 function createLocalStorageStub(): Storage {
   const store = new Map<string, string>();

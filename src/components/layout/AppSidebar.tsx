@@ -31,7 +31,7 @@ export function AppSidebar({ onOpenHistory }: { onOpenHistory: () => void }) {
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('mingdao-sidebar-collapsed');
+      const saved = localStorage.getItem('career-compass-sidebar-collapsed');
       if (saved !== null) {
         setCollapsed(saved === 'true');
       } else if (window.innerWidth < 768) {
@@ -54,7 +54,7 @@ export function AppSidebar({ onOpenHistory }: { onOpenHistory: () => void }) {
   const toggleCollapse = () => {
     const next = !collapsed;
     setCollapsed(next);
-    try { localStorage.setItem('mingdao-sidebar-collapsed', String(next)); }
+    try { localStorage.setItem('career-compass-sidebar-collapsed', String(next)); }
     catch { /* ignore */ }
   };
 

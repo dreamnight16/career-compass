@@ -141,7 +141,7 @@ export function PersonalityTest({ onComplete, onClose }: Props) {
         <div className="flex gap-2">
           <button onClick={() => {
             const desc = Object.entries(scores).map(([d,v])=>`${DIM_INFO[d].name}:${v}`).join(',');
-            localStorage.setItem('mingdao-bigfive', JSON.stringify({ scores, date: new Date().toISOString() }));
+            localStorage.setItem('career-compass-bigfive', JSON.stringify({ scores, date: new Date().toISOString() }));
             onComplete(desc);
           }}
             className="flex-1 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground">保存到画像</button>

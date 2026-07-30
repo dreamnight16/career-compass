@@ -16,12 +16,12 @@ export function WelcomeGuide() {
   const router = useRouter();
 
   useEffect(() => {
-    const dismissed = localStorage.getItem('mingdao-welcome-dismissed');
+    const dismissed = localStorage.getItem('career-compass-welcome-dismissed');
     if (!dismissed) setVisible(true);
   }, []);
 
   const dismiss = () => {
-    localStorage.setItem('mingdao-welcome-dismissed', 'true');
+    localStorage.setItem('career-compass-welcome-dismissed', 'true');
     setVisible(false);
   };
 
