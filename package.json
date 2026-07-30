@@ -1,5 +1,5 @@
 {
-  "name": "mingdao",
+  "name": "career-compass",
   "version": "0.1.0",
   "description": "为你探明前路",
   "keywords": [
@@ -10,13 +10,13 @@
     "rag",
     "chatbot"
   ],
-  "homepage": "https://github.com/sixtdreanight/mingdao",
+  "homepage": "https://github.com/sixtdreanight/career-compass",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sixtdreanight/mingdao.git"
+    "url": "https://github.com/sixtdreanight/career-compass.git"
   },
   "bugs": {
-    "url": "https://github.com/sixtdreanight/mingdao/issues"
+    "url": "https://github.com/sixtdreanight/career-compass/issues"
   },
   "author": "梦夜十六 <sixtdreanight@gmail.com>",
   "license": "MIT",

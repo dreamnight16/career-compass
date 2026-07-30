@@ -9,7 +9,7 @@ import { parseSourcesLine, stripDoneMarker } from '@/lib/stream-protocol';
 
 const WELCOME_MESSAGE: ChatMessage = {
   role: 'assistant', timestamp: new Date().toISOString(),
-  content: `嗨，我是明道的决策助手 👋\n\n我的职责不是给你答案，而是帮你**学会判断**一条路适不适合自己。\n\n我们从最简单的开始：\n\n**你现在大几？学什么专业？**`,
+  content: `嗨，我是歧点的决策助手 👋\n\n我的职责不是给你答案，而是帮你**学会判断**一条路适不适合自己。\n\n我们从最简单的开始：\n\n**你现在大几？学什么专业？**`,
 };
 
 export function ChatInterface() {

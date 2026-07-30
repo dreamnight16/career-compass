@@ -70,7 +70,7 @@ export function AppSidebar({ onOpenHistory }: { onOpenHistory: () => void }) {
           aria-label={collapsed ? '展开' : '收起'}>
           {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </button>
-        {!collapsed && <span className="text-base font-bold tracking-tight text-foreground">明道</span>}
+        {!collapsed && <span className="text-base font-bold tracking-tight text-foreground">歧点</span>}
       </div>
 
       {/* Nav */}

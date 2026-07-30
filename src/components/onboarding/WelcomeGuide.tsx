@@ -39,7 +39,7 @@ export function WelcomeGuide() {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
       <div className="mx-4 w-full max-w-sm rounded-3xl bg-card p-8 shadow-2xl spring-in">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-bold text-foreground">👋 欢迎来到明道</h2>
+          <h2 className="text-lg font-bold text-foreground">👋 欢迎来到歧点</h2>
           <button onClick={dismiss} className="rounded-lg p-1 text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
         </div>
 

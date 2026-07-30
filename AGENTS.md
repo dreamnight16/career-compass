@@ -12,7 +12,7 @@ A career planning tool for Chinese university students. Helps students see the r
 ## Tech Stack
 - Next.js 14 App Router + TypeScript strict
 - Tailwind CSS (CSS variable theme: terracotta warm palette)
-- Claude API (Anthropic) / DeepSeek for chat
+- Codex API (Anthropic) / DeepSeek for chat
 - Python knowledge crawler for data collection
 
 ## Key Files

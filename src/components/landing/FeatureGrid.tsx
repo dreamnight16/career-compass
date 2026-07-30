@@ -39,7 +39,7 @@ export function FeatureGrid({ onEnter }: FeatureGridProps) {
             onClick={onEnter}
             className="rounded-xl bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:scale-[1.03] hover:shadow-md active:scale-[0.98]"
           >
-            进入明道
+            进入歧点
           </button>
         </div>
       </div>

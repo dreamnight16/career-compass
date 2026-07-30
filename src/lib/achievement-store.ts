@@ -124,31 +124,31 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   // === 连续打卡 ===
   {
     id: 'streak-3', title: '三日之约', icon: '🔥', category: 'streak',
-    description: '连续 3 天使用明道', condition: '连续 3 天',
+    description: '连续 3 天使用歧点', condition: '连续 3 天',
     check: (ctx) => ctx.streakDays >= 3,
     progress: (ctx) => ({ current: Math.min(ctx.streakDays, 3), target: 3 }),
   },
   {
     id: 'streak-7', title: '七日之约', icon: '📅', category: 'streak',
-    description: '连续 7 天使用明道', condition: '连续 7 天',
+    description: '连续 7 天使用歧点', condition: '连续 7 天',
     check: (ctx) => ctx.streakDays >= 7,
     progress: (ctx) => ({ current: Math.min(ctx.streakDays, 7), target: 7 }),
   },
   {
     id: 'streak-14', title: '半月坚持', icon: '🌙', category: 'streak',
-    description: '连续 14 天使用明道', condition: '连续 14 天',
+    description: '连续 14 天使用歧点', condition: '连续 14 天',
     check: (ctx) => ctx.streakDays >= 14,
     progress: (ctx) => ({ current: Math.min(ctx.streakDays, 14), target: 14 }),
   },
   {
     id: 'streak-30', title: '月度冠军', icon: '👑', category: 'streak',
-    description: '连续 30 天使用明道', condition: '连续 30 天',
+    description: '连续 30 天使用歧点', condition: '连续 30 天',
     check: (ctx) => ctx.streakDays >= 30,
     progress: (ctx) => ({ current: Math.min(ctx.streakDays, 30), target: 30 }),
   },
   {
     id: 'streak-90', title: '季常青', icon: '🌲', category: 'streak',
-    description: '连续 90 天使用明道', condition: '连续 90 天',
+    description: '连续 90 天使用歧点', condition: '连续 90 天',
     check: (ctx) => ctx.streakDays >= 90,
     progress: (ctx) => ({ current: Math.min(ctx.streakDays, 90), target: 90 }),
   },
@@ -232,7 +232,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     progress: (_ctx) => ({ current: Math.min(getAchievements().length, 8), target: 8 }),
   },
   {
-    id: 'mingdao-master', title: '明道大师', icon: '💎', category: 'special',
+    id: 'mingdao-master', title: '歧点大师', icon: '💎', category: 'special',
     description: '解锁 15 枚以上成就徽章', condition: '解锁 15 枚徽章',
     check: (_ctx) => getAchievements().length >= 15,
     progress: (_ctx) => ({ current: Math.min(getAchievements().length, 15), target: 15 }),

@@ -20,7 +20,7 @@ export function HeroSection({ onEnter }: HeroSectionProps) {
       <div className="relative z-10 flex flex-col items-center gap-6 px-6 text-center">
         {/* 标题 */}
         <h1 className="font-serif-hero text-[clamp(3.5rem,8vw,7rem)] font-bold leading-none tracking-tight text-foreground hero-reveal">
-          明道
+          歧点
         </h1>
 
         {/* 签名装饰线 — SVG手绘风 */}

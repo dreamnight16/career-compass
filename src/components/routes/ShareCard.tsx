@@ -92,7 +92,7 @@ export function ShareCard(_props: ShareCardProps) {
         {/* Decorative top bar */}
         <div className="absolute top-0 left-0 right-0 h-1" style={{ background: `linear-gradient(90deg, ${t.accent}, transparent)` }} />
 
-        <h3 className="text-lg font-bold mb-4">✦ 明道 · 我的职业成长报告 ✦</h3>
+        <h3 className="text-lg font-bold mb-4">✦ 歧点 · 我的职业成长报告 ✦</h3>
 
         {/* Metric chips */}
         <div className="flex gap-3 mb-4">

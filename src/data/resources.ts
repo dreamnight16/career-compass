@@ -1,4 +1,4 @@
-/** 明道资源索引 — 300+ 策展链接，覆盖 13 学科门类，经多轮 Web 搜索验证 */
+/** 歧点资源索引 — 300+ 策展链接，覆盖 13 学科门类，经多轮 Web 搜索验证 */
 export interface ResourceLink { name: string; url: string; description: string; needProxy?: boolean }
 export interface ResourceCategory { id: string; icon: string; title: string; description: string; links: ResourceLink[] }
 

@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata: Metadata = {
-  title: '明道 — 为你探明前路',
+  title: '歧点 — 看清每条岔路',
   description: '不是告诉你该选哪条路，而是让你看清每条路的样子，然后自己决定。',
 };
 

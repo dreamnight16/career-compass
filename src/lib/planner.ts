@@ -29,7 +29,7 @@ export interface Route {
   generatedAt: string;
 }
 
-const PLAN_PROMPT = `<role>你是明道的路线规划引擎。基于用户画像和真实数据，生成JSON格式的职业生涯路线。</role>
+const PLAN_PROMPT = `<role>你是歧点的路线规划引擎。基于用户画像和真实数据，生成JSON格式的职业生涯路线。</role>
 
 <rules>
 1. 只生成2条路线。每条路线必须有明确的里程碑节点（4-6个）。

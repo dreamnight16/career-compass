@@ -1,6 +1,6 @@
-# 明道 — 为你探明前路
+# 歧点 — 看清每条岔路的样子
 
-> 照亮前路，你自己走。
+> 不是告诉你该选哪条路，而是让你看清楚每条路的样子，然后自己决定。
 
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
@@ -42,8 +42,8 @@
 
 ```bash
 # 克隆项目
-git clone https://github.com/sixtdreanight/mingdao.git
-cd mingdao
+git clone https://github.com/sixtdreanight/career-compass.git
+cd career-compass
 
 # 安装依赖
 npm install
@@ -87,7 +87,7 @@ npm run lint       # ESLint 检查
 ## 项目结构
 
 ```
-mingdao/
+career-compass/
 ├── src/
 │   ├── app/                  # Next.js App Router
 │   │   ├── api/chat/         # AI 对话 API

@@ -16,7 +16,7 @@ function MainContent() {
     recordVisit();
     const activities = getActivities();
     if (activities.length === 0) {
-      addActivity({ type: 'first_visit', title: '首次使用明道', detail: '开启职业探索之旅' });
+      addActivity({ type: 'first_visit', title: '首次使用歧点', detail: '开启职业探索之旅' });
     }
 
     // Track night visits (22:00-04:59)
