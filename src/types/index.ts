@@ -63,3 +63,38 @@ export interface ApiResponse<T> {
   data?: T;
   error?: string;
 }
+
+/** A career position in the advancement path */
+export interface CareerPosition {
+  /** Position title */
+  title: string;
+  /** Seniority level */
+  level: "entry" | "mid" | "senior" | "lead" | "expert";
+  /** One-line description of daily work */
+  dailyWork: string;
+}
+
+/** A career entry with skills, positions, and auxiliary salary info */
+export interface Career {
+  id: string;
+  /** Career title (e.g. "前端开发工程师") */
+  title: string;
+  /** Industry (e.g. "互联网") */
+  industry: string;
+  /** One-line summary of what this career does */
+  summary: string;
+  /** Ordered skill tree from basic to advanced */
+  skills: string[];
+  /** Typical career positions / advancement path */
+  positions: CareerPosition[];
+  /** Entry requirements */
+  requirements: string[];
+  /** Reference salary range in CNY/month */
+  salaryRange: [number, number];
+  /** Salary context note (e.g. "5年成长曲线") */
+  salaryNote: string;
+  /** Career outlook */
+  outlook: "rising" | "stable" | "declining";
+  /** Search/filter tags */
+  tags: string[];
+}
