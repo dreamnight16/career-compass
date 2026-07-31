@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, ChevronDown, ChevronUp, TrendingUp, Minus, TrendingDown } from "lucide-react";
+import { Search, ChevronDown, TrendingUp, Minus, TrendingDown } from "lucide-react";
 import type { Career } from "@/types";
 
 // ── Career Data ──────────────────────────────────────────────
@@ -1784,10 +1784,13 @@ export function CareerExplorer() {
         </span>
       </div>
 
-      {/* Career Cards */}
+      {/* Empty state */}
       {filtered.length === 0 ? (
-        <div className="text-center text-muted-foreground py-16">
-          没有匹配的职业方向，试试调整搜索条件
+        <div className="text-center py-20 flex flex-col items-center gap-3">
+          <div className="text-4xl opacity-20 font-serif">{"⟐"}</div>
+          <p className="text-sm text-muted-foreground">
+            没有匹配的职业方向，试试调整搜索条件
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -1795,16 +1798,24 @@ export function CareerExplorer() {
             const isExpanded = expandedIds.has(career.id);
             const outlook = OUTLOOK_ICON[career.outlook];
             const OutlookIcon = outlook.icon;
+            const accentBar = career.outlook === "rising"
+              ? "bg-emerald-400/60"
+              : career.outlook === "declining"
+                ? "bg-rose-300/60"
+                : "bg-amber-300/50";
 
             return (
               <div
                 key={career.id}
-                className="border border-border rounded-xl bg-card hover:shadow-md transition-shadow"
+                className="relative border border-border rounded-xl bg-card hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 overflow-hidden"
               >
-                {/* Card Header — always visible */}
+                {/* Left outlook accent bar */}
+                <div className={`absolute left-0 top-0 bottom-0 w-1 ${accentBar} rounded-l-xl`} />
+
+                {/* Card Header */}
                 <button
                   onClick={() => toggleExpand(career.id)}
-                  className="w-full text-left p-4"
+                  className="w-full text-left p-4 pl-5"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
@@ -1815,28 +1826,35 @@ export function CareerExplorer() {
                         {career.summary}
                       </p>
                     </div>
-                    {isExpanded ? (
-                      <ChevronUp className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
-                    ) : (
-                      <ChevronDown className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
-                    )}
+                    <ChevronDown
+                      className={`h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5 transition-transform duration-200 ${
+                        isExpanded ? "rotate-180" : ""
+                      }`}
+                    />
                   </div>
 
-                  {/* Skills preview (collapsed) — only show if skills exist */}
+                  {/* Skills preview — collapsed */}
                   {!isExpanded && career.skills.length > 0 && (
-                    <div className="mt-3">
-                      <span className="text-xs text-muted-foreground">
-                        技能树{" "}
-                      </span>
-                      <span className="text-xs text-foreground/80">
-                        {career.skills.slice(0, 3).join(" → ")}
-                        {career.skills.length > 3 ? " ..." : ""}
-                      </span>
+                    <div className="mt-3 flex items-center gap-1.5 flex-wrap">
+                      {career.skills.slice(0, 3).map((skill, i) => (
+                        <span
+                          key={skill}
+                          className="text-xs px-2 py-0.5 rounded-full border border-border text-muted-foreground"
+                          style={{ opacity: 1 - i * 0.15 }}
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                      {career.skills.length > 3 && (
+                        <span className="text-xs text-muted-foreground/60">
+                          +{career.skills.length - 3}
+                        </span>
+                      )}
                     </div>
                   )}
 
-                  {/* Tags */}
-                  <div className="flex flex-wrap items-center gap-2 mt-2">
+                  {/* Meta tags */}
+                  <div className="flex flex-wrap items-center gap-2 mt-2.5">
                     <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
                       {career.industry}
                     </span>
@@ -1849,87 +1867,114 @@ export function CareerExplorer() {
                   </div>
                 </button>
 
-                {/* Expanded Content */}
-                {isExpanded && (
-                  <div className="px-4 pb-4 border-t border-border space-y-4 pt-4">
-                    {/* Skills — full (only if skills exist) */}
-                    {career.skills.length > 0 && (
-                      <div>
-                        <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                          技能树
-                        </h4>
-                        <div className="flex flex-wrap gap-1.5">
-                          {career.skills.map((skill) => (
-                            <span
-                              key={skill}
-                              className="text-xs px-2.5 py-1 rounded-full bg-primary/5 text-primary border border-primary/10"
-                            >
-                              {skill}
-                            </span>
-                          ))}
+                {/* Expanded content */}
+                <div
+                  className={`grid transition-all duration-300 ease-out ${
+                    isExpanded
+                      ? "grid-rows-[1fr] opacity-100"
+                      : "grid-rows-[0fr] opacity-0"
+                  }`}
+                >
+                  <div className="overflow-hidden">
+                    <div className="px-4 pl-5 pb-4 border-t border-border space-y-5 pt-4">
+                      {/* Skills — full */}
+                      {career.skills.length > 0 && (
+                        <div>
+                          <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2.5">
+                            技能树
+                          </h4>
+                          <div className="flex flex-wrap gap-1.5">
+                            {career.skills.map((skill, i) => (
+                              <span
+                                key={skill}
+                                className="text-xs px-2.5 py-1 rounded-full bg-primary/5 text-primary border border-primary/10 transition-opacity"
+                                style={{ opacity: 1 - i * 0.06 }}
+                              >
+                                {skill}
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
-                    {/* Positions (only if positions exist) */}
-                    {career.positions.length > 0 && (
-                      <div>
-                        <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                          典型岗位路径
-                        </h4>
-                        <div className="space-y-2">
-                          {career.positions.map((pos, i) => (
-                            <div key={pos.title} className="flex items-start gap-2">
-                              {i > 0 && (
-                                <div className="flex items-center justify-center w-5 flex-shrink-0">
-                                  <div className="w-0.5 h-3 bg-border" />
+                      {/* Position ladder — signature element */}
+                      {career.positions.length > 0 && (
+                        <div>
+                          <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-3">
+                            职业晋升路径
+                          </h4>
+                          <div className="relative">
+                            {/* Vertical timeline line */}
+                            <div className="absolute left-[9px] top-1 bottom-1 w-px bg-border" />
+                            <div className="space-y-3">
+                              {career.positions.map((pos, i) => (
+                                <div key={pos.title} className="relative flex gap-3 pl-6">
+                                  {/* Timeline dot */}
+                                  <div
+                                    className={`absolute left-[5px] top-1.5 w-[9px] h-[9px] rounded-full border-2 border-background ${
+                                      i === 0
+                                        ? "bg-primary ring-2 ring-primary/20"
+                                        : i === career.positions.length - 1
+                                          ? "bg-amber-400"
+                                          : "bg-muted-foreground/30"
+                                    }`}
+                                  />
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <span className="text-sm font-semibold text-foreground">
+                                        {pos.title}
+                                      </span>
+                                      <span
+                                        className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                                          LEVEL_COLORS[pos.level] || "bg-gray-100 text-gray-600"
+                                        }`}
+                                      >
+                                        {LEVEL_LABELS[pos.level] || pos.level}
+                                      </span>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                                      {pos.dailyWork}
+                                    </p>
+                                  </div>
                                 </div>
-                              )}
-                              {i === 0 && <div className="w-5 flex-shrink-0" />}
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-sm font-medium text-foreground">
-                                    {pos.title}
-                                  </span>
-                                  <span
-                                    className={`text-[10px] px-1.5 py-0.5 rounded-full ${LEVEL_COLORS[pos.level] || "bg-gray-100 text-gray-600"}`}
-                                  >
-                                    {LEVEL_LABELS[pos.level] || pos.level}
-                                  </span>
-                                </div>
-                                <p className="text-xs text-muted-foreground mt-0.5">
-                                  {pos.dailyWork}
-                                </p>
-                              </div>
+                              ))}
                             </div>
-                          ))}
+                          </div>
                         </div>
+                      )}
+
+                      {/* Requirements */}
+                      <div>
+                        <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">
+                          入门条件
+                        </h4>
+                        <ul className="space-y-1">
+                          {career.requirements.map((req) => (
+                            <li key={req} className="text-sm text-foreground/75 flex items-start gap-2">
+                              <span className="text-primary/40 mt-1.5 block w-1 h-1 rounded-full bg-primary/40 flex-shrink-0" />
+                              {req}
+                            </li>
+                          ))}
+                        </ul>
                       </div>
-                    )}
 
-                    {/* Requirements */}
-                    <div>
-                      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                        入门条件
-                      </h4>
-                      <ul className="list-disc list-inside space-y-0.5">
-                        {career.requirements.map((req) => (
-                          <li key={req} className="text-sm text-foreground/80">
-                            {req}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* Salary — auxiliary, small text */}
-                    <div className="pt-2 border-t border-border">
-                      <span className="text-xs text-muted-foreground">
-                        参考薪资：{formatSalary(career.salaryRange)}/月
-                        {career.salaryNote ? `（${career.salaryNote}）` : ""}
-                      </span>
+                      {/* Salary — deliberately subdued */}
+                      <div className="pt-2 border-t border-border flex items-center gap-3">
+                        <span className="text-xs text-muted-foreground/80">
+                          参考薪资
+                        </span>
+                        <span className="text-sm font-medium text-foreground/70 tabular-nums">
+                          ¥{formatSalary(career.salaryRange)}/月
+                        </span>
+                        {career.salaryNote && (
+                          <span className="text-[11px] text-muted-foreground/60 hidden sm:inline">
+                            · {career.salaryNote}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                )}
+                </div>
               </div>
             );
           })}
