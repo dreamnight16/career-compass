@@ -5,8 +5,7 @@ import { ChatInterface } from '@/components/chat/ChatInterface';
 import { ResourceBrowser } from '@/components/chat/ResourceBrowser';
 import { ProfileDashboard } from '@/components/profile/ProfileDashboard';
 import { RouteBoard } from '@/components/routes/RouteBoard';
-import { KnowledgeBrowser } from '@/components/knowledge/KnowledgeBrowser';
-import { SalaryCompare } from '@/components/explore/SalaryCompare';
+import { DataCenter } from '@/components/explore/DataCenter';
 import { DecisionTree } from '@/components/explore/DecisionTree';
 import { CareerExplorer } from '@/components/explore/CareerExplorer';
 import { DecisionJournal } from '@/components/decisions/DecisionJournal';
@@ -16,7 +15,7 @@ import { DecisionJournal } from '@/components/decisions/DecisionJournal';
  */
 export function ContentRouter() {
   const params = useSearchParams();
-  const VALID_TABS = new Set(['coach', 'profile', 'knowledge', 'resources', 'routes', 'journal', 'explore', 'sim', 'careers']);
+  const VALID_TABS = new Set(['coach', 'profile', 'resources', 'routes', 'journal', 'explore', 'sim', 'careers']);
   const raw = params.get('tab') || 'coach';
   const tab = VALID_TABS.has(raw) ? raw : 'coach';
 
@@ -28,9 +27,6 @@ export function ContentRouter() {
       <div className={tab === 'profile' ? 'h-full' : 'hidden'}>
         <ProfileDashboard />
       </div>
-      <div className={tab === 'knowledge' ? 'h-full' : 'hidden'}>
-        <KnowledgeBrowser />
-      </div>
       <div className={tab === 'resources' ? 'h-full' : 'hidden'}>
         <ResourceBrowser />
       </div>
@@ -41,7 +37,7 @@ export function ContentRouter() {
         <DecisionJournal />
       </div>
       <div className={tab === 'explore' ? 'h-full' : 'hidden'}>
-        <SalaryCompare />
+        <DataCenter />
       </div>
       <div className={tab === 'sim' ? 'h-full' : 'hidden'}>
         <DecisionTree />

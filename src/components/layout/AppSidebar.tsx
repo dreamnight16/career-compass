@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Sparkles, UserCircle, Database, Library, ChevronLeft, ChevronRight, History, User, Map, BarChart3, GitBranch, Compass, BookOpen } from 'lucide-react';
+import { Sparkles, UserCircle, Library, ChevronLeft, ChevronRight, History, User, Map, BarChart3, GitBranch, Compass, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ProgressRing } from '@/components/ui/progress-ring';
 import { getAchievementCount, TOTAL_ACHIEVEMENTS } from '@/lib/achievement-store';
@@ -14,8 +14,7 @@ const NAV_ITEMS = [
   { id: 'journal',   icon: BookOpen,    label: '决策日志', en: 'Journal' },
   { id: 'explore',   icon: BarChart3,   label: '数据对比', en: 'Compare' },
   { id: 'sim',       icon: GitBranch,   label: '路径模拟', en: 'Simulate' },
-  { id: 'careers',   icon: Compass,     label: '职业探索', en: 'Careers' },
-  { id: 'knowledge', icon: Database,    label: '数据库',   en: 'Knowledge' },
+  { id: 'careers',   icon: Compass,     label: '路径探索', en: 'Careers' },
   { id: 'resources', icon: Library,     label: '资源库',   en: 'Resources' },
 ] as const;
 
