@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import type { ApiResponse } from '@/types';
 
 /**
  * 轻量级 API 防护：Bearer token 鉴权 + 内存 IP 限流。
@@ -54,18 +55,20 @@ function isRateLimited(ip: string): boolean {
  * 校验请求的鉴权与限流。
  * 未通过时返回对应的 NextResponse（401/429），通过时返回 null 表示放行。
  */
-export function enforceApiGuard(request: NextRequest): NextResponse | null {
+export function enforceApiGuard<T>(
+  request: NextRequest
+): NextResponse<ApiResponse<T>> | null {
   const token = process.env.API_AUTH_TOKEN;
   if (token) {
     const authHeader = request.headers.get('authorization');
     if (authHeader !== `Bearer ${token}`) {
-      return NextResponse.json({ success: false, error: '未授权' }, { status: 401 });
+      return NextResponse.json<ApiResponse<T>>({ success: false, error: '未授权' }, { status: 401 });
     }
   }
 
   const ip = getClientIp(request);
   if (isRateLimited(ip)) {
-    return NextResponse.json(
+    return NextResponse.json<ApiResponse<T>>(
       { success: false, error: '请求过于频繁，请稍后再试' },
       { status: 429 }
     );

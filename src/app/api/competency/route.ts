@@ -7,7 +7,7 @@ import { enforceApiGuard } from '@/lib/api-guard';
 export async function POST(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<OccupationCompetencyProfile>>> {
-  const guardResponse = enforceApiGuard(request);
+  const guardResponse = enforceApiGuard<OccupationCompetencyProfile>(request);
   if (guardResponse) return guardResponse;
 
   try {
