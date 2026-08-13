@@ -26,7 +26,10 @@ async function searchDuckDuckGo(query: string): Promise<SearchResult[]> {
     });
     clearTimeout(timer);
 
-    if (!response.ok) return [];
+    if (!response.ok) {
+      console.error(`[web-search] DuckDuckGo returned HTTP ${response.status}`);
+      return [];
+    }
 
     const html = await response.text();
 
@@ -66,8 +69,8 @@ async function searchDuckDuckGo(query: string): Promise<SearchResult[]> {
     }
 
     return results;
-  } catch {
-    // network failure or timeout — degrade gracefully
+  } catch (err) {
+    console.error('[web-search] DuckDuckGo search failed:', err instanceof Error ? err.message : err);
     return [];
   }
 }
@@ -94,7 +97,10 @@ async function searchBrave(query: string): Promise<SearchResult[]> {
     );
     clearTimeout(timer);
 
-    if (!response.ok) return [];
+    if (!response.ok) {
+      console.error(`[web-search] Brave returned HTTP ${response.status}`);
+      return [];
+    }
 
     const data = await response.json();
     return (data.web?.results || []).map((r: { title: string; description: string; url: string }) => ({
@@ -102,8 +108,8 @@ async function searchBrave(query: string): Promise<SearchResult[]> {
       snippet: r.description || '',
       url: r.url,
     }));
-  } catch {
-    // network failure or timeout — degrade gracefully
+  } catch (err) {
+    console.error('[web-search] Brave search failed:', err instanceof Error ? err.message : err);
     return [];
   }
 }
