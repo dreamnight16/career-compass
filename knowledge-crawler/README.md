@@ -1,6 +1,6 @@
 # Career Maze 知识库爬虫
 
-借鉴 [weekly-hotspot](https://github.com/sixtdreanight/weekly-hotspot) 架构，
+借鉴 [weekly-hotspot](https://github.com/dreamnight16/weekly-hotspot) 架构，
 自动搜索 + AI 提取 + 输出结构化职业规划数据。
 
 ## 流水线

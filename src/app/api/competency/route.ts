@@ -2,10 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import type { ApiResponse } from '@/types';
 import type { OccupationCompetencyProfile } from '@/types/competency';
 import { generateCompetencyProfile } from '@/lib/competency-generator';
+import { enforceApiGuard } from '@/lib/api-guard';
 
 export async function POST(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<OccupationCompetencyProfile>>> {
+  const guardResponse = enforceApiGuard(request);
+  if (guardResponse) return guardResponse;
+
   try {
     const body = await request.json();
     const occupation: string = body.occupation;

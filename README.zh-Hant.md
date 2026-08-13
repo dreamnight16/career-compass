@@ -43,7 +43,7 @@
 ### 安裝與執行
 
 ```bash
-git clone https://github.com/sixtdreanight/career-compass.git
+git clone https://github.com/dreamnight16/career-compass.git
 cd career-compass
 
 npm install

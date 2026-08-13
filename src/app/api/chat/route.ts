@@ -2,8 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import type { ChatMessage, ApiResponse, UserProfile, KnowledgeAtom } from '@/types';
 import { chatWithAIStream } from '@/lib/ai';
 import { extractProfile } from '@/lib/profile-extractor';
+import { enforceApiGuard } from '@/lib/api-guard';
 
 export async function POST(request: NextRequest) {
+  const guardResponse = enforceApiGuard(request);
+  if (guardResponse) return guardResponse;
+
   try {
     const body = await request.json();
     const messages: ChatMessage[] = body.messages;

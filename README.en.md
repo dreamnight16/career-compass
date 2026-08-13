@@ -43,7 +43,7 @@ This project does one thing simply: **shows what each path really looks like** â
 ### Install & Run
 
 ```bash
-git clone https://github.com/sixtdreanight/career-compass.git
+git clone https://github.com/dreamnight16/career-compass.git
 cd career-compass
 
 npm install

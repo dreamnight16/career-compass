@@ -44,7 +44,7 @@
 
 ```bash
 # 克隆项目
-git clone https://github.com/sixtdreanight/career-compass.git
+git clone https://github.com/dreamnight16/career-compass.git
 cd career-compass
 
 # 安装依赖

@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { UserProfile } from '@/types';
 import { generateRoutes } from '@/lib/planner';
+import { enforceApiGuard } from '@/lib/api-guard';
 
 export async function POST(request: NextRequest) {
+  const guardResponse = enforceApiGuard(request);
+  if (guardResponse) return guardResponse;
+
   try {
     const body = await request.json();
     const profile: Partial<UserProfile> = body.profile;
