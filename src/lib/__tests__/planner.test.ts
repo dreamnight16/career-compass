@@ -43,6 +43,20 @@ describe('buildPlanQuery', () => {
     expect(q).toContain('年级：大三');
     expect(q).toContain('预算：30万');
   });
+
+  it('joins interests and lifestyle with 、', () => {
+    const q = buildPlanQuery({
+      interests: ['游戏', '编程'],
+      lifestyle: ['稳定优先', '追求高薪'],
+    });
+
+    expect(q).toContain('兴趣：游戏、编程');
+    expect(q).toContain('偏好：稳定优先、追求高薪');
+  });
+
+  it('omits budget when it is zero', () => {
+    expect(buildPlanQuery({ householdBudget: 0 })).not.toContain('预算');
+  });
 });
 
 describe('generateRoutes JSON parsing/validation', () => {
@@ -88,5 +102,35 @@ describe('generateRoutes JSON parsing/validation', () => {
     mockChat.mockResolvedValue({ text: JSON.stringify({ foo: 'bar' }) });
 
     await expect(generateRoutes({})).rejects.toThrow(/no routes array/);
+  });
+
+  it('throws when the AI returns JSON-like but unparseable text', async () => {
+    mockChat.mockResolvedValue({ text: '{ 这不是合法 JSON }' });
+
+    await expect(generateRoutes({})).rejects.toThrow(/unparseable JSON/);
+  });
+
+  it('applies default values when route fields are missing', async () => {
+    mockChat.mockResolvedValue({ text: JSON.stringify({ routes: [{ title: '只有标题' }] }) });
+
+    const routes = await generateRoutes({});
+
+    expect(routes).toHaveLength(1);
+    expect(routes[0].title).toBe('只有标题');
+    expect(routes[0].cost).toBe('暂无数据');
+    expect(routes[0].salary).toBe('暂无可靠数据');
+    expect(routes[0].requirements).toEqual([]);
+    expect(routes[0].tags).toEqual([]);
+    expect(routes[0].nodes).toEqual([]);
+    expect(routes[0].id).toMatch(/^route-\d+-0$/);
+  });
+
+  it('marks the only node as goal when a route has a single node', async () => {
+    mockChat.mockResolvedValue({ text: JSON.stringify({ routes: [{ nodes: [{ label: '起点', detail: '现状' }] }] }) });
+
+    const routes = await generateRoutes({});
+
+    expect(routes[0].nodes).toHaveLength(1);
+    expect(routes[0].nodes[0].status).toBe('goal');
   });
 });
