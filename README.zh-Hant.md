@@ -25,10 +25,10 @@
 
 | 原則 | 含義 |
 |------|------|
-| **H-I-P（人主導規劃）** | AI 不替你做決定。它說「A路優勢X風險Y，B路優勢W風險Z」 |
+| **H-I-P（人主導規劃）** | 助手把每條路的好處和代價擺出來，最後由你決定 |
 | **角色卡機制** | 8 維度漸進式資訊收集，資訊不足 6 維度不推薦 |
 | **教決策框架** | 教你下次遇到類似問題時自己分析 |
-| **數據可追溯** | 每條 AI 引用的數據標註知識條目 ID，可點擊驗證來源 |
+| **數據可追溯** | 每條引用都標註知識條目 ID，可以點開核對來源 |
 | **反倖存者偏差** | 數據是極端個例時明確指出 |
 
 ---
@@ -49,7 +49,7 @@ cd career-compass
 npm install
 
 cp .env.example .env
-# 編輯 .env，填入 ANTHROPIC_API_KEY
+# AI 輔助是選用功能；不填金鑰也可以使用画像、資源庫、數據對比、測評和路徑模擬
 
 npm run dev
 ```
@@ -76,7 +76,7 @@ npm run lint       # ESLint 檢查
 | [TypeScript](https://www.typescriptlang.org/) | 類型安全 |
 | [shadcn/ui](https://ui.shadcn.com/) | UI 組件庫 |
 | [Tailwind CSS](https://tailwindcss.com/) | 樣式系統 |
-| [Claude API](https://docs.anthropic.com/) | AI 對話引擎 |
+| [Claude API](https://docs.anthropic.com/) | 選用的 AI 對話與規劃輔助 |
 | [lucide-react](https://lucide.dev/) | 圖標庫 |
 | [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) | 會話存儲 |
 

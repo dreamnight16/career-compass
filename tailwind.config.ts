@@ -35,8 +35,8 @@ const config: Config = {
         sage: { light: '#EDF2EC', DEFAULT: '#4A6741', deep: '#3A5233' },
       },
       fontFamily: {
-        sans: ['"Inter"', '"Noto Sans SC"', 'system-ui', 'sans-serif'],
-        display: ['"Noto Sans SC"', '"Inter"', 'system-ui', 'sans-serif'],
+        sans: ['"Noto Sans SC"', '"PingFang SC"', '"Microsoft YaHei"', 'system-ui', 'sans-serif'],
+        display: ['"Noto Sans SC"', '"PingFang SC"', '"Microsoft YaHei"', 'system-ui', 'sans-serif'],
         mono: ['"JetBrains Mono"', '"Fira Code"', 'monospace'],
       },
       boxShadow: {

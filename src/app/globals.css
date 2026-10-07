@@ -4,46 +4,77 @@
 
 @layer base {
   :root {
-    --background: #FDF9F4;
-    --foreground: #2C1A0E;
+    --background: #F2F5F7;
+    --foreground: #17202A;
     --card: #FFFFFF;
-    --card-foreground: #2C1A0E;
+    --card-foreground: #17202A;
     --popover: #FFFFFF;
-    --popover-foreground: #2C1A0E;
-    --primary: #C96442;
+    --popover-foreground: #17202A;
+    --primary: #4659B8;
     --primary-foreground: #FFFFFF;
-    --secondary: #F5F0EB;
-    --secondary-foreground: #4A3728;
-    --muted: #F5F0EB;
-    --muted-foreground: #6B5A4E;
-    --accent: #FAF4EC;
-    --accent-foreground: #2C1A0E;
-    --destructive: #C9908A;
+    --secondary: #E7EDF1;
+    --secondary-foreground: #30404C;
+    --muted: #E7EDF1;
+    --muted-foreground: #61707C;
+    --accent: #EEF0FF;
+    --accent-foreground: #17202A;
+    --destructive: #D05D66;
     --destructive-foreground: #FFFFFF;
-    --border: #D9C9B0;
-    --input: #D9C9B0;
-    --ring: #C96442;
-    --radius: 0.5rem;
-    --sidebar-background: #FAF4EC;
-    --sidebar-foreground: #4A3728;
-    --sidebar-primary: #2C1A0E;
-    --sidebar-primary-foreground: #FAF4EC;
-    --sidebar-accent: #F5F0EB;
-    --sidebar-accent-foreground: #2C1A0E;
-    --sidebar-border: #D9C9B0;
-    --sidebar-ring: #C96442;
+    --border: #D5DFE6;
+    --input: #D5DFE6;
+    --ring: #4659B8;
+    --radius: 0;
+    --sidebar-background: #EAF0F3;
+    --sidebar-foreground: #30404C;
+    --sidebar-primary: #17202A;
+    --sidebar-primary-foreground: #F2F5F7;
+    --sidebar-accent: #DDE8ED;
+    --sidebar-accent-foreground: #17202A;
+    --sidebar-border: #D5DFE6;
+    --sidebar-ring: #4659B8;
   }
 
-  html { background-color: #FAF8F5; }
+  html { background-color: #F2F5F7; }
   body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
   * { @apply border-border; }
   *:focus-visible { outline: 2px solid #C96442; outline-offset: 2px; border-radius: 4px; }
   .chat-scroll { scroll-behavior: smooth; }
   /* Subtle card hover lift */
-  .card-hover { transition: box-shadow 150ms ease, transform 150ms ease; }
-  .card-hover:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.04); transform: translateY(-1px); }
+  .card-hover { transition: box-shadow 280ms cubic-bezier(0.22, 1, 0.36, 1), transform 360ms cubic-bezier(0.34, 1.56, 0.64, 1), border-color 220ms ease; }
+  .card-hover:hover { box-shadow: 0 14px 30px rgba(23,32,42,0.10), 0 0 0 1px rgba(70,89,184,0.16); transform: translateY(-3px); }
   /* Glass surface */
-  .glass { background: rgba(255,255,255,0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  .glass { background: rgba(255,255,255,0.78); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(213,223,230,0.9); }
+}
+
+body {
+  background-image: linear-gradient(rgba(88, 113, 129, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(88, 113, 129, 0.045) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: -24%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(circle at 16% 20%, rgba(70,89,184,0.10), transparent 24%),
+    radial-gradient(circle at 82% 72%, rgba(240,179,90,0.10), transparent 22%);
+  animation: compass-signal 16s cubic-bezier(0.22, 1, 0.36, 1) infinite alternate;
+}
+
+/* Square edges for panels and controls; status dots and avatar circles keep
+   their semantic shape through `rounded-full`. */
+.rounded-sm,
+.rounded-md,
+.rounded-lg,
+.rounded-xl,
+.rounded-2xl,
+button,
+input,
+textarea,
+select {
+  border-radius: 0 !important;
 }
 
 @layer components {
@@ -67,6 +98,11 @@
   from { opacity: 0; filter: blur(12px); transform: translateY(8px); }
   to   { opacity: 1; filter: blur(0);   transform: translateY(0); }
 }
+
+@keyframes compass-signal {
+  from { transform: translate3d(-2%, -1%, 0) scale(0.98); opacity: 0.65; }
+  to { transform: translate3d(2%, 1%, 0) scale(1.03); opacity: 1; }
+}
 .hero-reveal {
   animation: hero-reveal 1.2s ease-out forwards;
 }
@@ -74,6 +110,7 @@
 .hero-reveal-delay-2 { animation-delay: 0.5s; opacity: 0; }
 
 @media (prefers-reduced-motion: reduce) {
+  body::after { animation: none; }
   .hero-reveal, .hero-reveal-delay-1, .hero-reveal-delay-2 {
     animation: none; opacity: 1; filter: none; transform: none;
   }

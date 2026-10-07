@@ -102,7 +102,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   // === 路线里程碑 ===
   {
     id: 'first-route', title: '初出茅庐', icon: '🗺', category: 'route',
-    description: 'AI 为你生成了第一条职业路线', condition: '生成第一条路线',
+    description: '你完成了第一条职业路线整理', condition: '生成第一条路线',
     check: (ctx) => ctx.routes.length >= 1,
   },
   {

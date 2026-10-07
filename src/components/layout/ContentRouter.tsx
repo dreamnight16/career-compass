@@ -20,7 +20,7 @@ export function ContentRouter() {
   const tab = VALID_TABS.has(raw) ? raw : 'coach';
 
   return (
-    <div className="flex-1 overflow-hidden">
+    <div className="flex-1 overflow-hidden pb-16 md:pb-0">
       <div className={tab === 'coach' ? 'h-full' : 'hidden'}>
         <ChatInterface />
       </div>

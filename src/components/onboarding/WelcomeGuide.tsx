@@ -5,9 +5,9 @@ import { Sparkles, UserCircle, Map, ArrowRight, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const STEPS = [
-  { icon: Sparkles, title: '和 AI 聊聊你的情况', desc: '告诉 AI 你的专业、年级和想法，它会逐步了解你' },
-  { icon: UserCircle, title: '完善个人画像', desc: '做性格测试、兴趣测评，让推荐更精准' },
-  { icon: Map, title: '获取路线图', desc: 'AI 为你规划职业路线，在成就图鉴中追踪进度' },
+  { icon: Sparkles, title: '整理你的情况（可选对话）', desc: '可以用对话整理专业、年级和想法，也可以直接编辑画像' },
+  { icon: UserCircle, title: '完善个人画像', desc: '做性格测试、兴趣测评，让后面的讨论更有依据' },
+  { icon: Map, title: '获取路线图', desc: '可以让助手整理职业路线，也可以先用本地路径模拟' },
 ];
 
 export function WelcomeGuide() {

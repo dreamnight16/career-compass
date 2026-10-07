@@ -118,7 +118,7 @@ export function ProfileDashboard() {
         toast('error', json.error || '生成失败，请稍后重试');
       }
     } catch {
-      toast('error', '网络错误，请稍后重试');
+      toast('error', 'AI 辅助暂不可用；画像和本地资源仍可继续使用');
     }
     finally { setCompetencyLoading(false); }
   };
@@ -251,7 +251,7 @@ export function ProfileDashboard() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-foreground">生成路线图</p>
-            <p className="text-xs text-muted-foreground mt-0.5">基于你的画像，AI 规划可行的职业路线</p>
+            <p className="text-xs text-muted-foreground mt-0.5">基于你的画像，可选用 AI 整理职业路线</p>
           </div>
           <button
             onClick={async () => {
@@ -274,7 +274,7 @@ export function ProfileDashboard() {
                   toast('error', json.error || '生成失败，请稍后重试');
                 }
               } catch {
-                toast('error', '网络错误，请稍后重试');
+                  toast('error', 'AI 辅助暂不可用；你仍可使用本地路径模拟和数据工具');
               }
               finally { setPlanLoading(false); }
             }}

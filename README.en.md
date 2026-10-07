@@ -25,10 +25,10 @@ This project does one thing simply: **shows what each path really looks like** â
 
 | Principle | Meaning |
 |-----------|---------|
-| **H-I-P (Human-in-Planning)** | AI never decides for you. It says "Path A: advantage X, risk Y. Path B: advantage W, risk Z" |
+| **H-I-P (Human-in-Planning)** | The assistant lays out the upside and cost of each path. You make the call |
 | **Role Card** | 8-dimension progressive profile. No recommendations before 6/8 dimensions filled |
 | **Decision Framework** | Teaches you how to analyze similar choices yourself next time |
-| **Data Traceability** | Every AI-cited data point links to a knowledge entry ID for source verification |
+| **Data Traceability** | Every cited data point links to a knowledge entry ID you can check |
 | **Anti-Survivorship Bias** | Explicitly flags when data represents extreme outliers |
 
 ---
@@ -49,7 +49,7 @@ cd career-compass
 npm install
 
 cp .env.example .env
-# Edit .env and add your ANTHROPIC_API_KEY
+# AI is optional; the local profile, resources, comparisons, tests, and path simulation work without a key
 
 npm run dev
 ```
@@ -76,7 +76,7 @@ npm run lint       # ESLint
 | [TypeScript](https://www.typescriptlang.org/) | Type safety |
 | [shadcn/ui](https://ui.shadcn.com/) | UI component library |
 | [Tailwind CSS](https://tailwindcss.com/) | Styling system |
-| [Claude API](https://docs.anthropic.com/) | AI chat engine |
+| [Claude API](https://docs.anthropic.com/) | Optional chat and planning assistance |
 | [lucide-react](https://lucide.dev/) | Icon library |
 | [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) | Session storage |
 

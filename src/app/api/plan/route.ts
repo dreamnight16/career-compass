@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import type { UserProfile } from '@/types';
 import { generateRoutes } from '@/lib/planner';
 import { enforceApiGuard } from '@/lib/api-guard';
+import { isAiConfigured } from '@/lib/ai-client';
 
 const STRING_FIELDS = ['grade', 'major', 'universityTier', 'targetCity', 'targetCareer'] as const;
 const ARRAY_FIELDS = ['interests', 'lifestyle', 'redLines'] as const;
@@ -55,6 +56,12 @@ function validateProfile(profile: Record<string, unknown>): string | null {
 export async function POST(request: NextRequest) {
   const guardResponse = enforceApiGuard(request);
   if (guardResponse) return guardResponse;
+  if (!isAiConfigured()) {
+    return NextResponse.json(
+      { success: false, error: '对话助手还没配置。路径模拟、数据对比和资源库仍然可以使用。' },
+      { status: 503 },
+    );
+  }
 
   try {
     const body = await request.json();

@@ -109,7 +109,7 @@ export function CompetencyCard({
       <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
         <div className="flex items-center gap-3">
           <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <span className="text-sm text-muted-foreground">正在生成能力画像...</span>
+          <span className="text-sm text-muted-foreground">正在整理这份能力画像...</span>
         </div>
       </div>
     );
@@ -158,7 +158,7 @@ export function CompetencyCard({
           <span className="text-xs text-muted-foreground">{fillPct}%</span>
         </div>
         <p className="mt-1 text-xs text-muted-foreground">
-          {profile.trustLevel === 'ai-inferred' ? '🤖 AI 生成 · 仅供参考' : '👥 社区贡献'}
+          {profile.trustLevel === 'ai-inferred' ? '模型整理 · 仅供参考' : '社区贡献'}
         </p>
       </div>
 

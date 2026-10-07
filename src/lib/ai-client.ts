@@ -23,6 +23,16 @@ interface ChatResult {
   text: string;
 }
 
+export const AI_NOT_CONFIGURED = 'AI_NOT_CONFIGURED';
+
+export function isAiConfigured(): boolean {
+  return Boolean(process.env.DEEPSEEK_API_KEY || process.env.ANTHROPIC_API_KEY);
+}
+
+function assertAiConfigured(): void {
+  if (!isAiConfigured()) throw new Error(AI_NOT_CONFIGURED);
+}
+
 function buildDeepSeekMessages(opts: ChatOptions): { role: string; content: string }[] {
   const messages: { role: string; content: string }[] = [];
   if (opts.systemPrompt) {
@@ -193,12 +203,14 @@ async function* streamAnthropic(opts: ChatOptions): AsyncGenerator<string> {
 
 /** 非流式 */
 export async function chat(opts: ChatOptions): Promise<ChatResult> {
+  assertAiConfigured();
   if (process.env.DEEPSEEK_API_KEY) return chatDeepSeek(opts);
   return chatAnthropic(opts);
 }
 
 /** 流式 — 返回 ReadableStream */
 export function chatStream(opts: ChatOptions): ReadableStream<Uint8Array> {
+  assertAiConfigured();
   if (process.env.DEEPSEEK_API_KEY) return streamDeepSeek(opts);
 
   // Anthropic: convert async generator to ReadableStream

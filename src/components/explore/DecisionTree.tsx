@@ -94,7 +94,7 @@ export function DecisionTree() {
             你的选择：{choices.join(' → ')}
           </p>
           <p className="text-xs text-muted-foreground mb-8">
-            {`这是一个基于你选择的客观路线框架，具体薪资、门槛和可行性需要到AI规划师中结合你的个人画像验证`}
+            {`这是一个基于你选择的客观路线框架，具体薪资、门槛和可行性可以在对话教练中结合个人画像进一步核对`}
           </p>
           <div className="space-y-3 mb-8">
             {result.steps.map((s, i) => (

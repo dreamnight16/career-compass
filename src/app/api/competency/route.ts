@@ -3,12 +3,19 @@ import type { ApiResponse } from '@/types';
 import type { OccupationCompetencyProfile } from '@/types/competency';
 import { generateCompetencyProfile } from '@/lib/competency-generator';
 import { enforceApiGuard } from '@/lib/api-guard';
+import { isAiConfigured } from '@/lib/ai-client';
 
 export async function POST(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<OccupationCompetencyProfile>>> {
   const guardResponse = enforceApiGuard<OccupationCompetencyProfile>(request);
   if (guardResponse) return guardResponse;
+  if (!isAiConfigured()) {
+    return NextResponse.json(
+      { success: false, error: '对话助手还没配置。你仍可以编辑画像，也可以使用本地资源匹配。' },
+      { status: 503 },
+    );
+  }
 
   try {
     const body = await request.json();
@@ -31,14 +38,14 @@ export async function POST(
 
     return NextResponse.json({ success: true, data: profile });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'AI 服务暂时不可用';
+    const message = error instanceof Error ? error.message : '模型服务暂时不可用';
     console.error('[competency] error:', message);
 
     return NextResponse.json(
       {
         success: false,
-        error: message.includes('ANTHROPIC_API_KEY')
-          ? 'AI 服务未配置'
+        error: message.includes('ANTHROPIC_API_KEY') || message.includes('AI_NOT_CONFIGURED')
+          ? '对话助手还没配置'
           : '能力画像生成失败，请稍后再试',
       },
       { status: 500 }

@@ -9,7 +9,7 @@ import { parseSourcesLine, stripDoneMarker } from '@/lib/stream-protocol';
 
 const WELCOME_MESSAGE: ChatMessage = {
   role: 'assistant', timestamp: new Date().toISOString(),
-  content: `嗨，我是歧点的决策助手 👋\n\n我的职责不是给你答案，而是帮你**学会判断**一条路适不适合自己。\n\n我们从最简单的开始：\n\n**你现在大几？学什么专业？**`,
+  content: `嗨，我是歧点里的决策助手。\n\n我不会替你选路，但可以陪你把信息、代价和顾虑摊开来看。\n\n先从眼前的情况开始：\n\n**你现在大几，读什么专业？**`,
 };
 
 export function ChatInterface() {
@@ -73,7 +73,8 @@ export function ChatInterface() {
       });
 
       if (!res.ok || !res.body) {
-        throw new Error('Stream not available');
+        const payload = await res.json().catch(() => ({} as { error?: string }));
+        throw new Error(payload.error || '这次没接上对话服务');
       }
 
       const reader = res.body.getReader();
@@ -144,15 +145,19 @@ export function ChatInterface() {
       // 记录活动
       addActivity({ type: 'chat', title: userMsg.content.slice(0, 30), detail: finalContent.slice(0, 60) });
 
-    } catch {
+    } catch (error) {
+      const message = error instanceof Error
+        ? error.message
+        : '这次没接上对话服务';
       setMessages(prev => {
         const updated = [...prev];
         const last = updated[updated.length - 1];
+        const fallback = `${message}\n\n聊天先停一下。个人画像、资源库、数据对比、路径模拟和决策日志仍然可以继续用。`;
         // 替换空的 assistant 占位为错误消息（不追加）
         if (last.role === 'assistant' && last.content === '') {
-          updated[updated.length - 1] = { ...last, content: '网络不稳定，请重试。', timestamp: new Date().toISOString() };
+          updated[updated.length - 1] = { ...last, content: fallback, timestamp: new Date().toISOString() };
         } else {
-          updated.push({ role: 'assistant', content: '网络不稳定，请重试。', timestamp: new Date().toISOString() });
+          updated.push({ role: 'assistant', content: fallback, timestamp: new Date().toISOString() });
         }
         return updated;
       });
@@ -178,7 +183,7 @@ export function ChatInterface() {
                     onClick={() => { setInput('能再详细解释一下吗？'); }}
                     className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-card px-3 py-1.5 text-xs text-muted-foreground hover:border-primary/30 hover:text-primary hover:bg-primary/5 transition-all"
                   >
-                    💡 试试: "能再详细解释一下吗？"
+                  还想继续的话，可以问：“能再详细解释一下吗？”
                   </button>
                 </div>
               </div>
@@ -186,20 +191,20 @@ export function ChatInterface() {
           </div>
         ))}
         {loading && messages[messages.length - 1]?.content === '' && <div className="mb-5 flex justify-start">
-          <div className="max-w-[82%]"><div className="mb-1 flex items-center gap-2"><span className="text-xs font-medium uppercase tracking-wider text-primary/60">助手</span><span className="h-px flex-1 bg-border" /></div>
+            <div className="max-w-[82%]"><div className="mb-1 flex items-center gap-2"><span className="text-xs font-medium uppercase tracking-wider text-primary/60">歧点</span><span className="h-px flex-1 bg-border" /></div>
           <div className="rounded-r-xl rounded-bl-md border-l-[3px] border-primary/40 bg-card px-4 py-3 shadow-sm">
             <div className="flex items-center gap-1.5"><div className="h-2 w-2 animate-bounce rounded-full bg-primary/50" /><div className="h-2 w-2 animate-bounce rounded-full bg-primary/50 [animation-delay:0.12s]" /><div className="h-2 w-2 animate-bounce rounded-full bg-primary/50 [animation-delay:0.24s]" /></div></div></div></div>}
         <div ref={chatEndRef} />
       </div>
       <div className="shrink-0 border-t border-border/50 bg-card/60 px-5 py-3 backdrop-blur-sm">
         <div className="flex items-end gap-2">
-          <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown} placeholder="输入你的回答..." rows={2}
+          <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown} placeholder="说说你现在在纠结什么..." rows={2}
             className="flex-1 resize-none rounded-xl border border-input bg-background px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20" disabled={loading}
             aria-label="聊天输入" />
           <button onClick={handleSend} disabled={loading || !input.trim()}
             className="rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-20">发送</button>
         </div>
-        <p className="mt-1.5 text-center text-[11px] text-muted-foreground">把路看清楚，决定你自己做</p>
+        <p className="mt-1.5 text-center text-[11px] text-muted-foreground">先把路看清楚，决定还是你来做</p>
       </div>
     </div>
   );

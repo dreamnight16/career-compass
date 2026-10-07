@@ -53,7 +53,7 @@ function MessageBubbleInner({ message }: MessageBubbleProps) {
       ) : (
         <div className="max-w-[82%]">
           <div className="mb-1 flex items-center gap-2">
-            <span className="text-xs font-medium uppercase tracking-wider text-primary">助手</span>
+            <span className="text-xs font-medium uppercase tracking-wider text-primary">歧点</span>
             <span className="h-px flex-1 bg-border" />
           </div>
           <div className="rounded-r-xl rounded-bl-md border-l-[3px] border-primary bg-card px-4 py-3 shadow-sm">

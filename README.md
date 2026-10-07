@@ -25,10 +25,10 @@
 
 | 原则 | 含义 |
 |------|------|
-| **H-I-P（人主导规划）** | AI 不替你做决定。它说"A路优势X风险Y，B路优势W风险Z" |
+| **H-I-P（人主导规划）** | 助手只把 A、B 两条路的优势和风险摆出来，决定由你做 |
 | **角色卡机制** | 8 维度渐进式信息收集，信息不足 6 维度不推荐 |
 | **教决策框架** | 教你下次遇到类似问题时自己分析 |
-| **数据可追溯** | 每条 AI 引用的数据标注知识条目 ID，可点击验证来源 |
+| **数据可追溯** | 每条引用都标注知识条目 ID，可以点开核对来源 |
 | **反幸存者偏差** | 数据是极端个例时明确指出 |
 
 ---
@@ -52,7 +52,7 @@ npm install
 
 # 配置环境变量
 cp .env.example .env
-# 编辑 .env，填入 ANTHROPIC_API_KEY
+# AI 辅助是可选的；不填密钥也可以使用画像、资源库、数据对比、测评和路径模拟
 
 # 启动开发服务器
 npm run dev
@@ -80,7 +80,7 @@ npm run lint       # ESLint 检查
 | [TypeScript](https://www.typescriptlang.org/) | 类型安全 |
 | [shadcn/ui](https://ui.shadcn.com/) | UI 组件库 |
 | [Tailwind CSS](https://tailwindcss.com/) | 样式系统 |
-| [Claude API](https://docs.anthropic.com/) | AI 对话引擎 |
+| [Claude API](https://docs.anthropic.com/) | 可选的 AI 对话与规划辅助 |
 | [lucide-react](https://lucide.dev/) | 图标库 |
 | [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) | 会话存储 |
 

@@ -3,10 +3,10 @@
 import { Sparkles, UserCircle, Database, Library } from 'lucide-react';
 
 const features = [
-  { icon: Sparkles, title: 'AI规划师', desc: '一对一深度对话，教决策不替决策' },
+  { icon: Sparkles, title: '决策助手（可选）', desc: '把信息和取舍摊开，最后由你来定' },
   { icon: UserCircle, title: '个人画像', desc: '8维角色卡 + 能力诊断，看清自己' },
-  { icon: Database, title: '数据库', desc: '300+职业数据点，每条都有来源' },
-  { icon: Library, title: '资源库', desc: '300+精选学习资源，精准匹配' },
+  { icon: Database, title: '职业资料', desc: '300+ 条资料，每条都能追到来源' },
+  { icon: Library, title: '资源库', desc: '300+ 条学习资源，按主题整理' },
 ];
 
 interface FeatureGridProps {

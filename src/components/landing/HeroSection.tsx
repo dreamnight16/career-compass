@@ -8,13 +8,11 @@ interface HeroSectionProps {
 
 export function HeroSection({ onEnter }: HeroSectionProps) {
   return (
-    <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden noise-bg"
-      style={{ background: 'linear-gradient(180deg, oklch(97% 0.01 85) 0%, var(--background) 60%, rgba(201,100,66,0.06) 100%)' }}
-    >
+    <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden noise-bg">
       {/* 柔和光晕 */}
       <div
         className="pointer-events-none absolute top-1/3 left-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-20"
-        style={{ background: 'radial-gradient(circle, rgba(201,100,66,0.3) 0%, transparent 70%)' }}
+        style={{ background: 'radial-gradient(circle, rgba(70,89,184,0.22) 0%, rgba(240,179,90,0.12) 40%, transparent 70%)' }}
       />
 
       <div className="relative z-10 flex flex-col items-center gap-6 px-6 text-center">
@@ -54,7 +52,7 @@ export function HeroSection({ onEnter }: HeroSectionProps) {
         {/* CTA */}
         <button
           onClick={onEnter}
-          className="hero-reveal-delay-2 hero-reveal mt-6 rounded-xl bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:scale-[1.03] hover:shadow-md active:scale-[0.98]"
+          className="hero-reveal-delay-2 hero-reveal mt-6 rounded-xl bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(.34,1.56,.64,1)] hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(70,89,184,.24)] active:translate-y-0 active:scale-[0.98]"
         >
           开始探索
         </button>

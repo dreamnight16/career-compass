@@ -39,10 +39,7 @@ playwright-report/
 .vercel
 
 # build artifacts
-tsconfig.tsbuildinfo
-
-# e2e
-e2e-screenshots/
+*.tsbuildinfo
 
 # temporary files
 tmp_*

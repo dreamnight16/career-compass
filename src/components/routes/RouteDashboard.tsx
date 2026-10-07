@@ -64,7 +64,7 @@ export function RouteDashboard() {
           <svg className="h-12 w-12 text-muted-foreground/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1"><path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
         </div>
         <h3 className="text-lg font-semibold text-foreground mb-2">还没有路线规划</h3>
-        <p className="text-sm text-muted-foreground mb-6">完善个人画像后让 AI 为你生成专属职业路线</p>
+        <p className="text-sm text-muted-foreground mb-6">完善个人画像后，可选用 AI 整理职业路线</p>
         <button onClick={() => router.push('/main?tab=profile')} className="rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm btn-press">
           去完善画像
         </button>

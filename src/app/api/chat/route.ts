@@ -3,10 +3,17 @@ import type { ChatMessage, ApiResponse, UserProfile, KnowledgeAtom } from '@/typ
 import { chatWithAIStream } from '@/lib/ai';
 import { extractProfile } from '@/lib/profile-extractor';
 import { enforceApiGuard } from '@/lib/api-guard';
+import { AI_NOT_CONFIGURED, isAiConfigured } from '@/lib/ai-client';
 
 export async function POST(request: NextRequest) {
   const guardResponse = enforceApiGuard(request);
   if (guardResponse) return guardResponse;
+  if (!isAiConfigured()) {
+    return NextResponse.json(
+      { success: false, error: '对话助手还没配置。个人画像、资源库、数据对比和决策日志仍然可以使用。' },
+      { status: 503 },
+    );
+  }
 
   try {
     const body = await request.json();
@@ -60,17 +67,17 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'AI 服务暂时不可用';
+    const message = error instanceof Error ? error.message : '模型服务暂时不可用';
     console.error('[chat] error:', message);
 
     return NextResponse.json(
       {
         success: false,
-        error: message.includes('not configured')
-          ? 'AI 服务未配置，请联系管理员'
-          : 'AI 服务暂时不可用，请稍后再试',
+        error: message === AI_NOT_CONFIGURED || message.includes('not configured')
+          ? '对话助手还没配置。本地工具仍然可以使用。'
+          : '模型服务暂时不可用，请稍后再试',
       },
-      { status: 500 }
+      { status: message === AI_NOT_CONFIGURED ? 503 : 500 }
     );
   }
 }
