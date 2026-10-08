@@ -18,8 +18,20 @@ interface IndustryRow { name: string; nonPrivate: number; private: number }
 
 // ── Constants ────────────────────────────────────────────────
 
-const MAJOR_COLORS = ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444', '#06b6d4', '#f97316', '#6366f1', '#14b8a6', '#ec4899', '#84cc16', '#0ea5e9'];
-const SERIES_COLORS = ['#10b981', '#f59e0b', '#3b82f6', '#ef4444', '#8b5cf6', '#f97316', '#06b6d4', '#ec4899'];
+/* 图表系列色：直接引用 DNDL 品牌实色 Token（--dn-*），不再使用 Tailwind 默认调色板。
+   语义固定，同一颜色在不同图表里表达同一件事：
+     teal    = 品牌主序列        cyan    = 数据 / 常规通道
+     emerald = 达标 / 完成       violet  = 探索 / 长期投入
+     amber   = 提醒 / 待关注     orange  = 活动 / 次级强调
+     steel   = 中性信息          crimson = 差距 / 风险
+   缺陷 1：Tailwind v3 无法给 var(--x) 应用透明度修饰符，所以这里一律按实色使用，
+   需要更淡的层级时改用 Canvas/Surface 平面或 Divider 分隔线，而不是降低 alpha。 */
+const DN_SERIES_COLORS = [
+  'var(--dn-teal)', 'var(--dn-cyan)', 'var(--dn-emerald)', 'var(--dn-violet)',
+  'var(--dn-amber)', 'var(--dn-orange)', 'var(--dn-steel)', 'var(--dn-crimson)',
+];
+const MAJOR_COLORS = DN_SERIES_COLORS;
+const SERIES_COLORS = DN_SERIES_COLORS;
 
 const MAX_SELECT = 8;
 const DEFAULT_SELECT_COUNT = 5;
@@ -27,6 +39,12 @@ const TOP_MAJOR_COUNT = 30;
 const CITY_CHIP_COUNT = 10;
 const DEFAULT_CITY = '上海';
 const PAGE_SIZE = 50;
+
+/* 交互词汇：可点击目标一律 ≥44×44 CSS px；选中态用 Teal 实色场 + On-Color 正文，
+   未选中态用 Canvas 平面 + Divider 轮廓，状态不靠颜色单独表达（均带 aria-pressed）。 */
+const TARGET_HIT = 'min-h-11';
+const CHIP_IDLE = 'border border-border bg-secondary text-muted-foreground hover:bg-muted hover:text-foreground';
+const CHIP_ACTIVE = 'bg-dn-teal text-dn-on-color';
 
 // ── Helpers ──────────────────────────────────────────────────
 
@@ -120,196 +138,206 @@ function MajorSalaryView() {
 
   // ── Render
   if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="skeleton h-64 w-full max-w-2xl rounded-2xl" />
+    <div role="status" aria-live="polite" className="flex h-64 items-center justify-center">
+      <p className="cc-kicker text-muted-foreground">正在加载专业薪资数据</p>
     </div>
   );
   if (error) return (
-    <div className="flex flex-col items-center justify-center h-64 gap-3">
-      <p className="text-sm text-muted-foreground">数据加载失败</p>
-      <button onClick={load} className="text-xs text-primary hover:underline">重试</button>
+    <div role="alert" className="flex h-64 flex-col items-center justify-center gap-3">
+      <p className="text-sm text-muted-foreground">数据加载失败（静态回退不可用）</p>
+      <button onClick={load}
+        className={`${TARGET_HIT} inline-flex items-center border border-input px-4 text-xs text-foreground hover:bg-muted`}>
+        重试
+      </button>
     </div>
   );
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* ── Chart Section ── */}
       <section>
-        <h3 className="text-base font-semibold text-foreground mb-1">薪资对比</h3>
+        <h3 className="text-lg font-normal text-foreground mb-1">薪资对比</h3>
         <p className="text-xs text-muted-foreground mb-4">
           {majors.length} 个专业 · 全国均薪 ¥{avg.toLocaleString()}
         </p>
 
-        <div className="mb-4 flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-muted-foreground mr-1">
-            <MapPin className="inline h-3.5 w-3.5" /> 参照城市：
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <span className="cc-kicker mr-1 inline-flex items-center gap-1 text-muted-foreground">
+            <MapPin aria-hidden className="h-3.5 w-3.5" /> 参照城市
           </span>
           {cities.slice(0, 10).map(c => (
             <button key={c.name} onClick={() => setSelCity(c.name)}
               aria-pressed={c.name === selCity}
-              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                c.name === selCity ? 'bg-foreground text-background' : 'bg-secondary text-muted-foreground hover:text-foreground'
-              }`}>
-              {c.name} ¥{c.monthly.toLocaleString()}
+              className={`${TARGET_HIT} px-3 text-xs font-medium transition-colors ${c.name === selCity ? CHIP_ACTIVE : CHIP_IDLE}`}>
+              {c.name} <span className="cc-num">¥{c.monthly.toLocaleString()}</span>
             </button>
           ))}
         </div>
 
         <div className="mb-6 space-y-2">
-          {chartList.map((m, i) => (
-            <div key={m.name} className="flex items-center gap-2 group">
-              <span className="w-36 text-right text-[11px] text-muted-foreground truncate">{m.name}</span>
-              <div className="flex-1 h-5 bg-secondary rounded-full overflow-hidden relative">
-                <div className="h-full rounded-full transition-all duration-500"
-                  style={{ width: `${(m.salary / maxVal) * 100}%`, backgroundColor: MAJOR_COLORS[i % MAJOR_COLORS.length] }} />
+          {chartList.map((m, i) => {
+            const above = m.salary > avg;
+            const deltaLabel = `${above ? '高于' : '低于'}全国均薪 ¥${Math.abs(m.salary - avg).toLocaleString()}`;
+            return (
+              <div key={m.name} className="flex items-center gap-2">
+                <span className="w-36 truncate text-right text-[11px] text-muted-foreground">{m.name}</span>
+                <div className="relative h-5 flex-1 overflow-hidden bg-muted">
+                  <div className="h-full transition-[width] duration-expand ease-dn-in"
+                    style={{ width: `${(m.salary / maxVal) * 100}%`, backgroundColor: MAJOR_COLORS[i % MAJOR_COLORS.length] }} />
+                </div>
+                <span className="cc-num w-16 text-right text-[11px] text-foreground">
+                  ¥{m.salary.toLocaleString()}
+                </span>
+                {/* 颜色之外还有方向箭头，差值含义由 title 与辅助文本说明 */}
+                <span className="w-14 whitespace-nowrap text-right text-[10px] text-muted-foreground" title={deltaLabel}>
+                  {above
+                    ? <ArrowUp aria-hidden className="inline h-3 w-3" />
+                    : <ArrowDown aria-hidden className="inline h-3 w-3" />}
+                  {formatSalary(Math.abs(m.salary - avg))}
+                  <span className="sr-only">{deltaLabel}</span>
+                </span>
               </div>
-              <span className="w-16 text-[11px] font-semibold tabular-nums text-foreground">
-                ¥{m.salary.toLocaleString()}
-              </span>
-              <span className="w-12 text-[10px] text-muted-foreground/50">
-                {m.salary > avg ? <ArrowUp className="inline h-3 w-3 text-emerald-500" /> : <ArrowDown className="inline h-3 w-3 text-red-400" />}
-                {formatSalary(Math.abs(m.salary - avg))}
-              </span>
-            </div>
-          ))}
-          <div className="relative mt-3 pt-2 border-t border-dashed border-border/40">
+            );
+          })}
+          <div className="relative mt-3 border-t border-dashed border-border pt-2">
             <div className="flex items-center gap-2">
-              <span className="w-36 text-right text-[10px] text-muted-foreground/50">{selCity} 人均可支配收入(月)</span>
-              <div className="flex-1 relative overflow-hidden">
-                <div className="absolute top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-full bg-foreground/30"
+              <span className="w-36 text-right text-[10px] text-muted-foreground">{selCity} 人均可支配收入(月)</span>
+              <div className="relative h-5 flex-1 overflow-hidden">
+                <div aria-hidden className="absolute top-1/2 h-5 w-0.5 -translate-y-1/2 bg-dn-ink"
                   style={{ left: `${Math.min(100, (cityMonthlyIncome / maxVal) * 100)}%` }} />
               </div>
-              <span className="w-16 text-[11px] font-semibold">¥{cityMonthlyIncome.toLocaleString()}</span>
-              <span className="w-12" />
+              <span className="cc-num w-16 text-right text-[11px] text-foreground">¥{cityMonthlyIncome.toLocaleString()}</span>
+              <span className="w-14" />
             </div>
-            <p className="mt-1 text-right text-[10px] text-muted-foreground/40">
+            <p className="mt-1 text-right text-[10px] text-muted-foreground">
               城市线为年人均可支配收入÷12（国家统计局口径），非平均工资
             </p>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border/30 bg-card p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <Info className="h-4 w-4 text-muted-foreground/50" />
-            <span className="text-xs text-muted-foreground">点击选择对比专业（最多10个）</span>
+        {/* 选择面板：用一条 Divider 分隔线建立层级，而不是再套一张圆角白卡 */}
+        <div className="border-t border-border pt-5">
+          <div className="mb-3 flex items-center gap-2">
+            <Info aria-hidden className="h-4 w-4 text-muted-foreground" />
+            <span className="cc-kicker text-muted-foreground">点击选择对比专业（最多 10 个）</span>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {majors.map(m => (
               <button key={m.name} onClick={() => toggle(m.name)}
                 aria-pressed={selected.has(m.name)}
-                className={`rounded-lg px-3 py-1.5 text-xs transition-all ${
-                  selected.has(m.name)
-                    ? 'bg-foreground text-background shadow-sm'
-                    : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
-                }`}>
-                {m.name} {m.salary > avg ? '↑' : '↓'}
+                title={`${m.name}：${m.salary > avg ? '高于' : '低于'}全国均薪`}
+                className={`${TARGET_HIT} px-3 text-xs transition-colors ${selected.has(m.name) ? CHIP_ACTIVE : CHIP_IDLE}`}>
+                {m.name} <span aria-hidden>{m.salary > avg ? '↑' : '↓'}</span>
+                <span className="sr-only">（{m.salary > avg ? '高于' : '低于'}全国均薪）</span>
               </button>
             ))}
           </div>
         </div>
       </section>
 
+      <div className="cc-rule" />
+
       {/* ── Table Section ── */}
       <section>
-        <h3 className="text-base font-semibold text-foreground mb-1">数据库</h3>
+        <h3 className="text-lg font-normal text-foreground mb-1">数据库</h3>
         <p className="text-xs text-muted-foreground mb-4">
           {filtered.length} 个专业 · {allFields.length} 个学科 · 数据来源麦可思
         </p>
 
         {/* Table toolbar */}
-        <div className="flex flex-wrap items-center gap-3 mb-3">
-          <div className="flex items-center gap-1.5 rounded-lg border border-input bg-background px-3 py-1.5">
-            <Search className="h-3.5 w-3.5 text-muted-foreground/40" />
+        <div className="mb-3 flex flex-wrap items-center gap-3">
+          <div className="flex min-h-11 items-center gap-1.5 border border-input bg-background px-3">
+            <Search aria-hidden className="h-3.5 w-3.5 text-muted-foreground" />
             <input
               value={search}
               onChange={e => { setSearch(e.target.value); setPage(0); }}
               placeholder="搜索专业" aria-label="搜索专业"
-              className="w-36 bg-transparent text-xs outline-none"
+              className="w-36 bg-transparent text-xs text-foreground outline-none placeholder:text-muted-foreground"
             />
           </div>
           <button
             onClick={() => setShowNet(v => !v)}
             aria-pressed={showNet}
-            className={`rounded-lg px-3 py-1.5 text-xs font-medium inline-flex items-center gap-1 transition-colors ${
-              showNet ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground'
-            }`}>
-            <Calculator className="h-3 w-3" /> 到手估算
+            className={`${TARGET_HIT} inline-flex items-center gap-1 px-3 text-xs font-medium transition-colors ${showNet ? CHIP_ACTIVE : CHIP_IDLE}`}>
+            <Calculator aria-hidden className="h-3 w-3" /> 到手估算
           </button>
           <button
             onClick={() => setSortDir(d => d === 'asc' ? 'desc' : 'asc')}
-            className="rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground inline-flex items-center gap-1">
-            <ArrowUpDown className="h-3 w-3" /> {sortDir === 'desc' ? '高→低' : '低→高'}
+            className={`${TARGET_HIT} inline-flex items-center gap-1 px-3 text-xs font-medium transition-colors ${CHIP_IDLE}`}>
+            <ArrowUpDown aria-hidden className="h-3 w-3" /> {sortDir === 'desc' ? '高→低' : '低→高'}
           </button>
-          <span className="text-xs text-muted-foreground">
+          <span className="cc-num text-xs text-muted-foreground">
             共 {filtered.length} 条
           </span>
         </div>
 
         {/* Quick filters */}
-        <div className="flex gap-1.5 flex-wrap mb-4">
+        <div className="mb-4 flex flex-wrap gap-1.5">
           <button onClick={() => { setSearch(''); setPage(0); }}
-            className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${
-              !search ? 'bg-foreground text-background' : 'bg-secondary text-muted-foreground hover:text-foreground'
-            }`}>
+            aria-pressed={!search}
+            className={`${TARGET_HIT} px-3 text-[11px] font-medium transition-colors ${!search ? CHIP_ACTIVE : CHIP_IDLE}`}>
             全部
           </button>
           {allFields.slice(0, 8).map(f => (
             <button key={f} onClick={() => { setSearch(f); setPage(0); }}
-              className={`rounded-full px-2.5 py-1 text-[11px] transition-colors ${
-                search === f ? 'bg-foreground text-background' : 'bg-secondary text-muted-foreground hover:text-foreground'
-              }`}>
+              aria-pressed={search === f}
+              className={`${TARGET_HIT} px-3 text-[11px] transition-colors ${search === f ? CHIP_ACTIVE : CHIP_IDLE}`}>
               {f}
             </button>
           ))}
           {allFields.length > 8 && (
-            <span className="text-[11px] text-muted-foreground/40 self-center">
-              +{allFields.length - 8} 更多
+            <span className="self-center text-[11px] text-muted-foreground">
+              +{allFields.length - 8} 更多未列出
             </span>
           )}
         </div>
 
         {/* Table */}
-        <div className="rounded-xl border border-border/20 bg-card overflow-x-auto">
+        <div className="overflow-x-auto border border-border bg-card">
           <table className="w-full text-sm">
-            <thead className="bg-secondary/30">
-              <tr className="border-b border-border/20">
-                <th className="px-3 py-2.5 text-left text-[11px] font-medium text-muted-foreground w-8">#</th>
-                <th className="px-3 py-2.5 text-left text-[11px] font-medium text-muted-foreground">专业名称</th>
-                <th className="px-3 py-2.5 text-left text-[11px] font-medium text-muted-foreground hidden md:table-cell">学科门类</th>
-                <th className="px-3 py-2.5 text-right text-[11px] font-medium text-muted-foreground">月薪</th>
+            <thead className="bg-secondary">
+              <tr className="border-b border-border">
+                <th scope="col" className="w-8 px-3 py-2.5 text-left text-[11px] font-medium text-muted-foreground">#</th>
+                <th scope="col" className="px-3 py-2.5 text-left text-[11px] font-medium text-muted-foreground">专业名称</th>
+                <th scope="col" className="hidden px-3 py-2.5 text-left text-[11px] font-medium text-muted-foreground md:table-cell">学科门类</th>
+                <th scope="col" className="px-3 py-2.5 text-right text-[11px] font-medium text-muted-foreground">月薪</th>
                 {showNet && (
-                  <th className="px-3 py-2.5 text-right text-[11px] font-medium text-muted-foreground">到手估算</th>
+                  <th scope="col" className="px-3 py-2.5 text-right text-[11px] font-medium text-muted-foreground">到手估算</th>
                 )}
-                <th className="px-3 py-2.5 text-center text-[11px] font-medium text-muted-foreground w-10">收藏</th>
+                <th scope="col" className="w-14 px-3 py-2.5 text-center text-[11px] font-medium text-muted-foreground">收藏</th>
               </tr>
             </thead>
             <tbody>
               {pageRows.map((r, i) => {
                 const netBreakdown = showNet ? estimateNetSalary(r.salary) : null;
+                const above = r.salary >= avg;
                 return (
-                  <tr key={r.id} className="border-b border-border/10 hover:bg-secondary/20 transition-colors">
-                    <td className="px-3 py-2 text-xs text-muted-foreground/40 tabular-nums">
+                  <tr key={r.id} className="border-b border-border transition-colors hover:bg-muted">
+                    <td className="cc-num px-3 py-2 text-xs text-muted-foreground">
                       {page * PAGE_SIZE + i + 1}
                     </td>
-                    <td className="px-3 py-2 font-medium text-foreground text-[13px]">{r.name}</td>
-                    <td className="px-3 py-2 text-xs text-muted-foreground hidden md:table-cell">{r.field}</td>
-                    <td className="px-3 py-2 text-right font-semibold tabular-nums text-[13px]">
-                      <span className={r.salary >= avg ? 'text-emerald-600' : 'text-foreground'}>
-                        ¥{r.salary.toLocaleString()}
-                      </span>
+                    <td className="px-3 py-2 text-[13px] font-medium text-foreground">{r.name}</td>
+                    <td className="hidden px-3 py-2 text-xs text-muted-foreground md:table-cell">{r.field}</td>
+                    <td className="cc-num px-3 py-2 text-right text-[13px] text-foreground">
+                      {/* 高于全国均值用 ▲ 形状标记 + 同义文字，不把含义只放在颜色上 */}
+                      {above && <span aria-hidden className="mr-1 text-[10px] text-muted-foreground">▲</span>}
+                      {above && <span className="sr-only">高于全国平均月薪 </span>}
+                      ¥{r.salary.toLocaleString()}
                     </td>
                     {showNet && (
-                      <td className="px-3 py-2 text-right tabular-nums text-[13px]">
-                        <span className="text-muted-foreground"
-                          title={`五险一金 ¥${netBreakdown!.socialTotal.toLocaleString()} + 个税 ¥${netBreakdown!.monthlyTax.toLocaleString()}`}>
+                      <td className="cc-num px-3 py-2 text-right text-[13px] text-muted-foreground">
+                        <span title={`五险一金 ¥${netBreakdown!.socialTotal.toLocaleString()} + 个税 ¥${netBreakdown!.monthlyTax.toLocaleString()}`}>
                           ¥{netBreakdown!.net.toLocaleString()}
                         </span>
                       </td>
                     )}
                     <td className="px-3 py-2 text-center">
                       <button onClick={() => toggleBm(r.id)}
-                        className={bookmarks.has(r.id) ? 'text-amber-500' : 'text-muted-foreground/20 hover:text-amber-400'}>
-                        <Bookmark className={`h-3.5 w-3.5 ${bookmarks.has(r.id) ? 'fill-amber-400' : ''}`} />
+                        aria-pressed={bookmarks.has(r.id)}
+                        aria-label={bookmarks.has(r.id) ? `取消收藏 ${r.name}` : `收藏 ${r.name}`}
+                        className={`inline-flex min-h-11 min-w-11 items-center justify-center transition-colors ${bookmarks.has(r.id) ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+                        {/* 已收藏 = 实心书签，未收藏 = 线框书签：形状本身即可读，不依赖颜色 */}
+                        <Bookmark aria-hidden className={`h-3.5 w-3.5 ${bookmarks.has(r.id) ? 'fill-foreground' : ''}`} />
                       </button>
                     </td>
                   </tr>
@@ -321,15 +349,17 @@ function MajorSalaryView() {
 
         {/* Pagination */}
         {pages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-4">
+          <div className="mt-4 flex items-center justify-center gap-2">
             <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}
-              className="rounded-lg bg-secondary px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground disabled:opacity-30">
-              <ChevronLeft className="h-3.5 w-3.5" />
+              aria-label="上一页"
+              className={`${CHIP_IDLE} inline-flex min-h-11 min-w-11 items-center justify-center transition-colors disabled:opacity-60`}>
+              <ChevronLeft aria-hidden className="h-3.5 w-3.5" />
             </button>
-            <span className="text-xs text-muted-foreground">{page + 1} / {pages}</span>
+            <span className="cc-num text-xs text-muted-foreground">{page + 1} / {pages}</span>
             <button onClick={() => setPage(p => Math.min(pages - 1, p + 1))} disabled={page >= pages - 1}
-              className="rounded-lg bg-secondary px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground disabled:opacity-30">
-              <ChevronRight className="h-3.5 w-3.5" />
+              aria-label="下一页"
+              className={`${CHIP_IDLE} inline-flex min-h-11 min-w-11 items-center justify-center transition-colors disabled:opacity-60`}>
+              <ChevronRight aria-hidden className="h-3.5 w-3.5" />
             </button>
           </div>
         )}
@@ -337,10 +367,11 @@ function MajorSalaryView() {
         {/* Footer */}
         <div className="mt-6 space-y-1 text-center">
           {showNet && (
-            <p className="text-[10px] text-muted-foreground/40">{ASSUMPTIONS_NOTE}</p>
+            <p className="text-[10px] text-muted-foreground">{ASSUMPTIONS_NOTE}</p>
           )}
-          <p className="text-[10px] text-muted-foreground/40">
-            数据来源：麦可思研究院《2026年中国本科生就业报告》、国家统计局
+          <p className="cc-kicker text-muted-foreground">数据来源</p>
+          <p className="text-[10px] text-muted-foreground">
+            麦可思研究院《2026年中国本科生就业报告》、国家统计局（随静态数据集打包）
           </p>
         </div>
       </section>
@@ -398,31 +429,32 @@ function CityPurchasingView() {
   const balancePos = Math.min(100, (1 / maxRatio) * 100);
 
   if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+    <div role="status" aria-live="polite" className="flex h-64 items-center justify-center">
+      <p className="cc-kicker text-muted-foreground">正在加载城市消费数据</p>
     </div>
   );
   if (error || majors.length === 0 || cityMonthly <= 0) return (
-    <div className="flex flex-col items-center justify-center h-64 gap-3">
-      <p className="text-sm text-muted-foreground">{error ? '数据加载失败' : '暂无可用数据'}</p>
-      <button onClick={load} className="text-xs text-primary hover:underline">重试</button>
+    <div role="alert" className="flex h-64 flex-col items-center justify-center gap-3">
+      <p className="text-sm text-muted-foreground">{error ? '数据加载失败（静态回退不可用）' : '暂无可用数据'}</p>
+      <button onClick={load}
+        className={`${TARGET_HIT} inline-flex items-center border border-input px-4 text-xs text-foreground hover:bg-muted`}>
+        重试
+      </button>
     </div>
   );
 
   return (
     <div>
-      <h3 className="text-base font-semibold text-foreground mb-1">城市购买力</h3>
+      <h3 className="text-lg font-normal text-foreground mb-1">城市购买力</h3>
       <p className="text-xs text-muted-foreground mb-4">专业月薪能覆盖几个月的城市消费，结余多少</p>
 
-      <div className="mb-4 flex items-center gap-2 flex-wrap">
-        <span className="text-xs text-muted-foreground mr-1">
-          <MapPin className="inline h-3.5 w-3.5" /> 城市：
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <span className="cc-kicker mr-1 inline-flex items-center gap-1 text-muted-foreground">
+          <MapPin aria-hidden className="h-3.5 w-3.5" /> 城市
         </span>
         {cities.map(c => (
           <button key={c.name} onClick={() => setSelCity(c.name)} aria-pressed={c.name === cityData.name}
-            className={`rounded-full px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
-              c.name === cityData.name ? 'bg-foreground text-background' : 'bg-secondary text-muted-foreground hover:text-foreground'
-            }`}>
+            className={`${TARGET_HIT} px-3 text-xs font-medium transition-colors ${c.name === cityData.name ? CHIP_ACTIVE : CHIP_IDLE}`}>
             {c.name} 消费¥{c.monthly.toLocaleString()}/月
           </button>
         ))}
@@ -436,39 +468,41 @@ function CityPurchasingView() {
           return (
             <div key={m.name} className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
               <span className="w-36 truncate text-right text-[11px] text-muted-foreground" title={m.name}>{m.name}</span>
-              <div className="relative h-5 flex-1 min-w-[140px] rounded-full bg-secondary">
-                <div className="h-full rounded-full transition-all duration-500"
+              <div className="relative h-5 min-w-[140px] flex-1 bg-muted">
+                <div className="h-full transition-[width] duration-expand ease-dn-in"
                   style={{ width: `${Math.min(100, (ratio / maxRatio) * 100)}%`, backgroundColor: SERIES_COLORS[colorIdx % SERIES_COLORS.length] }} />
-                <div aria-hidden className="pointer-events-none absolute inset-y-0 border-l border-dashed border-foreground/25"
+                <div aria-hidden className="pointer-events-none absolute inset-y-0 border-l border-dashed border-dn-ink"
                   style={{ left: `${balancePos}%` }} />
               </div>
-              <span className="w-44 shrink-0 whitespace-nowrap text-[11px] tabular-nums">
-                <span className="font-semibold text-foreground">x{ratio.toFixed(2)}</span>
-                <span className={`ml-2 text-[10px] ${surplus < 0 ? 'text-red-500' : 'text-muted-foreground'}`}>
+              <span className="w-44 shrink-0 whitespace-nowrap text-[11px]">
+                <span className="cc-num text-foreground">x{ratio.toFixed(2)}</span>
+                {/* 结余为负时用 △ 形状 + 文字同时说明，不只靠颜色 */}
+                <span className="ml-2 text-[10px] text-muted-foreground">
+                  {surplus < 0 && <span aria-hidden>△ </span>}
                   结余 {fmtSigned(surplus)}/月{surplus < 0 && '（入不敷出）'}
                 </span>
               </span>
             </div>
           );
         })}
-        <div className="flex flex-wrap items-center gap-x-2 pt-2 mt-1 border-t border-dashed border-border/40">
-          <span className="w-36 text-right text-[10px] text-muted-foreground/60">收支平衡线 x1</span>
-          <div className="relative h-5 flex-1 min-w-[140px]">
-            <div aria-hidden className="absolute inset-y-0 border-l border-dashed border-foreground/40"
+        <div className="mt-1 flex flex-wrap items-center gap-x-2 border-t border-dashed border-border pt-2">
+          <span className="w-36 text-right text-[10px] text-muted-foreground">收支平衡线 x1</span>
+          <div className="relative h-5 min-w-[140px] flex-1">
+            <div aria-hidden className="absolute inset-y-0 border-l border-dashed border-input"
               style={{ left: `${balancePos}%` }} />
           </div>
-          <span className="w-44 shrink-0 text-[10px] text-muted-foreground/60">月薪 = 城市月均消费</span>
+          <span className="w-44 shrink-0 text-[10px] text-muted-foreground">月薪 = 城市月均消费</span>
         </div>
       </div>
 
-      <p className="mb-4 text-[10px] leading-relaxed text-muted-foreground/60">
+      <p className="mb-4 text-[10px] leading-relaxed text-muted-foreground">
         购买力 = 专业全国平均月薪 ÷ 城市月均消费支出（国家统计局口径）；专业薪资为全国均值，未按城市调整，仅供横向比较。
       </p>
 
-      <div className="rounded-2xl border border-border/30 bg-card p-5">
-        <div className="flex items-center gap-2 mb-3">
-          <Info className="h-4 w-4 text-muted-foreground/50" />
-          <span className="text-xs text-muted-foreground">
+      <div className="border-t border-border pt-5">
+        <div className="mb-3 flex items-center gap-2">
+          <Info aria-hidden className="h-4 w-4 text-muted-foreground" />
+          <span className="cc-kicker text-muted-foreground">
             点击选择对比专业（1–{MAX_SELECT} 个，按全国平均月薪前 {TOP_MAJOR_COUNT}）
           </span>
         </div>
@@ -478,9 +512,7 @@ function CityPurchasingView() {
             const isSelected = idx !== undefined;
             return (
               <button key={m.name} onClick={() => toggle(m.name)} aria-pressed={isSelected}
-                className={`rounded-lg px-3 py-1.5 text-xs transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
-                  isSelected ? 'bg-foreground text-background shadow-sm' : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
-                }`}>
+                className={`${TARGET_HIT} px-3 text-xs transition-colors ${isSelected ? CHIP_ACTIVE : CHIP_IDLE}`}>
                 {isSelected && (
                   <span aria-hidden className="mr-1.5 inline-block h-2 w-2 rounded-full align-middle"
                     style={{ backgroundColor: SERIES_COLORS[idx % SERIES_COLORS.length] }} />
@@ -514,14 +546,17 @@ function IndustryCompareView() {
   useEffect(() => { load(); }, []);
 
   if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+    <div role="status" aria-live="polite" className="flex h-64 items-center justify-center">
+      <p className="cc-kicker text-muted-foreground">正在加载行业薪资数据</p>
     </div>
   );
   if (error || industries.length === 0) return (
-    <div className="flex flex-col items-center justify-center h-64 gap-3">
-      <p className="text-sm text-muted-foreground">{error ? '数据加载失败' : '暂无行业数据'}</p>
-      <button onClick={load} className="text-xs text-primary hover:underline">重试</button>
+    <div role="alert" className="flex h-64 flex-col items-center justify-center gap-3">
+      <p className="text-sm text-muted-foreground">{error ? '数据加载失败（静态回退不可用）' : '暂无行业数据'}</p>
+      <button onClick={load}
+        className={`${TARGET_HIT} inline-flex items-center border border-input px-4 text-xs text-foreground hover:bg-muted`}>
+        重试
+      </button>
     </div>
   );
 
@@ -530,17 +565,17 @@ function IndustryCompareView() {
 
   return (
     <div>
-      <h3 className="text-base font-semibold text-foreground mb-1">体制内外薪资差</h3>
+      <h3 className="text-lg font-normal text-foreground mb-1">体制内外薪资差</h3>
       <p className="text-xs text-muted-foreground mb-4">{industries.length} 个行业，非私营与私营单位对比</p>
 
       <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5">
-          <span aria-hidden className="h-2.5 w-2.5 rounded-full bg-primary" /> 非私营(国企/机关/事业)
+          <span aria-hidden className="h-2.5 w-2.5 rounded-full bg-dn-teal" /> 非私营(国企/机关/事业)
         </span>
         <span className="flex items-center gap-1.5">
-          <span aria-hidden className="h-2.5 w-2.5 rounded-full bg-muted-foreground" /> 私营单位
+          <span aria-hidden className="h-2.5 w-2.5 rounded-full bg-dn-steel" /> 私营单位
         </span>
-        <span className="text-muted-foreground/60">均为年平均工资</span>
+        <span className="text-muted-foreground">均为年平均工资</span>
       </div>
 
       <div className="mb-4 space-y-1">
@@ -554,45 +589,46 @@ function IndustryCompareView() {
             <div key={ind.name} className="py-1.5">
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
                 <span className="w-40 truncate text-[11px] text-muted-foreground" title={ind.name}>{ind.name}</span>
-                <div className="relative h-6 flex-1 min-w-[180px]">
+                <div className="relative h-6 min-w-[180px] flex-1">
                   {hasPrivate && (
-                    <div aria-hidden className="absolute top-1/2 h-0.5 -translate-y-1/2 rounded-full bg-muted-foreground/25"
+                    <div aria-hidden className="absolute top-1/2 h-0.5 -translate-y-1/2 bg-dn-steel"
                       style={{ left: `${lineLeft}%`, width: `${lineWidth}%` }} />
                   )}
                   {hasPrivate && (
-                    <div className="absolute top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-muted-foreground ring-2 ring-background"
+                    <div className="absolute top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-dn-steel ring-2 ring-background"
                       style={{ left: `${pPct}%` }} title={`私营 ¥${ind.private.toLocaleString()}`} />
                   )}
-                  <div className="absolute top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary ring-2 ring-background"
+                  <div className="absolute top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-dn-teal ring-2 ring-background"
                     style={{ left: `${npPct}%` }} title={`非私营 ¥${ind.nonPrivate.toLocaleString()}`} />
                 </div>
                 {hasPrivate ? (
-                  <span className="shrink-0 rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium tabular-nums text-foreground"
+                  <span className="cc-num shrink-0 bg-muted px-2 py-0.5 text-[10px] text-foreground"
                     title="非私营 ÷ 私营 年平均工资">
                     x{(ind.nonPrivate / ind.private).toFixed(1)}
                   </span>
                 ) : (
-                  <span className="shrink-0 rounded-full bg-secondary px-2 py-0.5 text-[10px] text-muted-foreground">无私营数据</span>
+                  <span className="shrink-0 bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">无私营数据</span>
                 )}
               </div>
-              <div className="mt-0.5 flex flex-wrap gap-x-3 text-[10px] tabular-nums text-muted-foreground/70 sm:pl-[10.5rem]">
-                <span>非私营 ¥{ind.nonPrivate.toLocaleString()}</span>
-                {hasPrivate && <span>私营 ¥{ind.private.toLocaleString()}</span>}
+              <div className="mt-0.5 flex flex-wrap gap-x-3 text-[10px] text-muted-foreground sm:pl-[10.5rem]">
+                <span className="cc-num">非私营 ¥{ind.nonPrivate.toLocaleString()}</span>
+                {hasPrivate && <span className="cc-num">私营 ¥{ind.private.toLocaleString()}</span>}
               </div>
             </div>
           );
         })}
       </div>
 
-      <div className="mb-4 rounded-xl border border-dashed border-primary/30 bg-primary/5 p-4">
-        <p className="text-xs font-medium text-foreground mb-1">决策提示</p>
-        <p className="text-xs leading-relaxed text-muted-foreground">
+      {/* 决策提示是一块真正的 Teal 实色场，而不是浅色描边盒子 */}
+      <div className="mb-4 bg-dn-teal p-4">
+        <p className="cc-kicker mb-1 text-dn-on-color">决策提示</p>
+        <p className="text-xs leading-relaxed text-dn-on-color">
           同一行业体制内外差距可达数倍，但稳定性、编制、晋升逻辑完全不同——差距大小由你自己权衡。
         </p>
       </div>
 
-      <p className="text-[10px] text-muted-foreground/60">
-        数据来源：国家统计局2025年城镇单位就业人员平均工资；部分行业为估算值，仅供参考
+      <p className="text-[10px] text-muted-foreground">
+        数据来源：国家统计局2025年城镇单位就业人员平均工资（随静态数据集打包）；部分行业为估算值，仅供参考
       </p>
     </div>
   );
@@ -613,24 +649,24 @@ export function DataCenter() {
     <div className="h-full overflow-y-auto">
       <div className="mx-auto max-w-3xl px-6 py-8">
         {/* Header */}
-        <div className="mb-6">
-          <h2 className="text-xl font-bold text-foreground mb-1">数据中心</h2>
-          <p className="text-sm text-muted-foreground">
+        <header className="mb-6">
+          <h2 className="cc-h2 text-foreground mb-1">数据中心</h2>
+          <p className="cc-body text-sm text-muted-foreground">
             查询专业薪资、城市生活成本、行业体制差异
           </p>
-        </div>
+        </header>
 
-        {/* Sub-tabs */}
-        <div className="flex gap-1 mb-6 border-b border-border">
+        {/* Sub-tabs：选中态同时有 3px Teal 底线与 Ink 正文，形状与颜色双重表达 */}
+        <div className="mb-6 flex gap-1 border-b border-border">
           {TABS.map(tab => (
             <button
               key={tab.id}
               onClick={() => setSubTab(tab.id)}
               aria-pressed={subTab === tab.id}
-              className={`px-4 py-2.5 text-sm font-medium border-b-[3px] transition-all duration-200 ${
+              className={`min-h-11 border-b-[3px] px-4 text-sm transition-colors ${
                 subTab === tab.id
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+                  ? 'border-dn-teal text-foreground'
+                  : 'border-transparent text-muted-foreground hover:border-border hover:text-foreground'
               }`}
             >
               {tab.label}

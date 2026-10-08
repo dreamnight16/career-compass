@@ -1671,10 +1671,12 @@ const CAREERS: Career[] = [
 
 // ── Helpers ──────────────────────────────────────────────────
 
-const OUTLOOK_ICON: Record<string, { icon: typeof TrendingUp; color: string; label: string }> = {
-  rising: { icon: TrendingUp, color: "text-green-600", label: "上升期" },
-  stable: { icon: Minus, color: "text-yellow-600", label: "稳定期" },
-  declining: { icon: TrendingDown, color: "text-red-500", label: "下滑期" },
+// DNDL 语义映射：上升 → Emerald，稳定 → Steel，下滑 → Crimson。
+// 色条只做辅助，卡片上始终同时给出图标与「上升期 / 稳定期 / 下滑期」文字，状态不单靠颜色。
+const OUTLOOK_ICON: Record<string, { icon: typeof TrendingUp; bar: string; label: string }> = {
+  rising: { icon: TrendingUp, bar: "bg-dn-emerald", label: "上升期" },
+  stable: { icon: Minus, bar: "bg-dn-steel", label: "稳定期" },
+  declining: { icon: TrendingDown, bar: "bg-dn-crimson", label: "下滑期" },
 };
 
 const LEVEL_LABELS: Record<string, string> = {
@@ -1685,12 +1687,13 @@ const LEVEL_LABELS: Record<string, string> = {
   expert: "专家",
 };
 
+// 职级编号：沿晋升阶梯递进的品牌实色场，文字一律 text-dn-on-color。
 const LEVEL_COLORS: Record<string, string> = {
-  entry: "bg-blue-50 text-blue-700",
-  mid: "bg-cyan-50 text-cyan-700",
-  senior: "bg-purple-50 text-purple-700",
-  lead: "bg-orange-50 text-orange-700",
-  expert: "bg-red-50 text-red-700",
+  entry: "bg-dn-cyan text-dn-on-color",
+  mid: "bg-dn-teal text-dn-on-color",
+  senior: "bg-dn-emerald text-dn-on-color",
+  lead: "bg-dn-violet text-dn-on-color",
+  expert: "bg-dn-amber text-dn-on-color",
 };
 
 // ── Component ────────────────────────────────────────────────
@@ -1736,31 +1739,33 @@ export function CareerExplorer() {
     `${Math.round(range[0] / 1000)}k-${Math.round(range[1] / 1000)}k`;
 
   return (
-    <div className="p-6">
+    <div className="px-6 py-8">
       {/* Header */}
-      <div className="mb-6">
-        <h2 className="text-xl font-bold text-foreground mb-1">路径探索</h2>
-        <p className="text-sm text-muted-foreground">
+      <header className="mb-8">
+        <h2 className="cc-h1 text-2xl text-foreground">路径探索</h2>
+        <p className="cc-body mt-2 text-muted-foreground">
           了解每个职业方向需要学什么、能做什么、能走到哪里
         </p>
-      </div>
+      </header>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3 mb-6">
-        <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <div className="mb-8 flex flex-wrap items-center gap-3 border-b border-border pb-5">
+        <div className="relative max-w-xs flex-1">
+          <Search aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
+            aria-label="搜索职业、技能、标签"
             placeholder="搜索职业、技能、标签..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="dn-focus min-h-11 w-full border border-input bg-card py-2 pl-10 pr-3 text-sm text-foreground placeholder:text-muted-foreground placeholder:opacity-60"
           />
         </div>
         <select
+          aria-label="按行业筛选"
           value={industryFilter}
           onChange={(e) => setIndustryFilter(e.target.value)}
-          className="text-sm border border-border rounded-lg bg-background px-3 py-2"
+          className="dn-focus min-h-11 border border-input bg-card px-3 py-2 text-sm text-foreground"
         >
           <option value="">全部行业</option>
           {industries.map((ind) => (
@@ -1770,64 +1775,70 @@ export function CareerExplorer() {
           ))}
         </select>
         <select
+          aria-label="按趋势筛选"
           value={outlookFilter}
           onChange={(e) => setOutlookFilter(e.target.value)}
-          className="text-sm border border-border rounded-lg bg-background px-3 py-2"
+          className="dn-focus min-h-11 border border-input bg-card px-3 py-2 text-sm text-foreground"
         >
           <option value="">全部趋势</option>
           <option value="rising">上升期</option>
           <option value="stable">稳定期</option>
           <option value="declining">下滑期</option>
         </select>
-        <span className="text-xs text-muted-foreground">
-          {filtered.length} 个职业
-        </span>
+        <p className="ml-auto text-xs text-muted-foreground">
+          <span className="cc-num text-base text-foreground">{filtered.length}</span> 个职业 · 内置静态数据
+        </p>
       </div>
 
       {/* Empty state */}
       {filtered.length === 0 ? (
-        <div className="text-center py-20 flex flex-col items-center gap-3">
-          <div className="text-4xl opacity-20 font-serif">{"⟐"}</div>
+        <div className="flex flex-col items-start gap-3 py-20">
+          <p aria-hidden="true" className="cc-num text-6xl text-muted-foreground">
+            0
+          </p>
           <p className="text-sm text-muted-foreground">
             没有匹配的职业方向，试试调整搜索条件
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        // 平面网格：用 1px 分隔线组织卡片，不再堆叠圆角白卡
+        <div className="grid grid-cols-1 gap-px border border-border bg-border md:grid-cols-2 xl:grid-cols-3">
           {filtered.map((career) => {
             const isExpanded = expandedIds.has(career.id);
             const outlook = OUTLOOK_ICON[career.outlook];
             const OutlookIcon = outlook.icon;
-            const accentBar = career.outlook === "rising"
-              ? "bg-emerald-400/60"
-              : career.outlook === "declining"
-                ? "bg-rose-300/60"
-                : "bg-amber-300/50";
+            // 趋势色只改变色条与状态块的颜色，文字标签始终可见
+            const accentBar = outlook.bar;
+            const panelId = `career-panel-${career.id}`;
 
             return (
-              <div
-                key={career.id}
-                className="relative border border-border rounded-xl bg-card hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 overflow-hidden"
-              >
+              <div key={career.id} className="relative bg-card">
                 {/* Left outlook accent bar */}
-                <div className={`absolute left-0 top-0 bottom-0 w-1 ${accentBar} rounded-l-xl`} />
+                <div aria-hidden="true" className={`absolute bottom-0 left-0 top-0 w-1 ${accentBar}`} />
 
                 {/* Card Header */}
                 <button
                   onClick={() => toggleExpand(career.id)}
-                  className="w-full text-left p-4 pl-5"
+                  onKeyDown={(e) => {
+                    // Escape 收起当前卡片；焦点本来就停在触发按钮上
+                    if (e.key === "Escape" && isExpanded) toggleExpand(career.id);
+                  }}
+                  aria-expanded={isExpanded}
+                  aria-controls={panelId}
+                  className="dn-focus block w-full cursor-pointer p-5 pl-6 text-left transition-colors duration-200 hover:bg-secondary"
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-foreground truncate">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="cc-h2 text-lg text-foreground">
                         {career.title}
                       </h3>
-                      <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">
+                      <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
                         {career.summary}
                       </p>
                     </div>
                     <ChevronDown
-                      className={`h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5 transition-transform duration-200 ${
+                      aria-hidden="true"
+                      className={`mt-0.5 h-5 w-5 flex-shrink-0 text-muted-foreground transition-transform duration-200 ${
                         isExpanded ? "rotate-180" : ""
                       }`}
                     />
@@ -1835,33 +1846,18 @@ export function CareerExplorer() {
 
                   {/* Skills preview — collapsed */}
                   {!isExpanded && career.skills.length > 0 && (
-                    <div className="mt-3 flex items-center gap-1.5 flex-wrap">
-                      {career.skills.slice(0, 3).map((skill, i) => (
-                        <span
-                          key={skill}
-                          className="text-xs px-2 py-0.5 rounded-full border border-border text-muted-foreground"
-                          style={{ opacity: 1 - i * 0.15 }}
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                      {career.skills.length > 3 && (
-                        <span className="text-xs text-muted-foreground/60">
-                          +{career.skills.length - 3}
-                        </span>
-                      )}
-                    </div>
+                    <p className="mt-3 truncate text-xs text-muted-foreground">
+                      {career.skills.slice(0, 3).join(" · ")}
+                      {career.skills.length > 3 ? ` · +${career.skills.length - 3}` : ""}
+                    </p>
                   )}
 
                   {/* Meta tags */}
-                  <div className="flex flex-wrap items-center gap-2 mt-2.5">
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                      {career.industry}
-                    </span>
-                    <span
-                      className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${outlook.color} bg-background border border-border`}
-                    >
-                      <OutlookIcon className="h-3 w-3" />
+                  <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs">
+                    <span className="text-muted-foreground">{career.industry}</span>
+                    <span className="inline-flex items-center gap-1.5 text-foreground">
+                      <span aria-hidden="true" className={`h-2.5 w-2.5 ${outlook.bar}`} />
+                      <OutlookIcon aria-hidden="true" className="h-3.5 w-3.5" />
                       {outlook.label}
                     </span>
                   </div>
@@ -1869,6 +1865,8 @@ export function CareerExplorer() {
 
                 {/* Expanded content */}
                 <div
+                  id={panelId}
+                  aria-hidden={!isExpanded}
                   className={`grid transition-all duration-300 ease-out ${
                     isExpanded
                       ? "grid-rows-[1fr] opacity-100"
@@ -1876,82 +1874,86 @@ export function CareerExplorer() {
                   }`}
                 >
                   <div className="overflow-hidden">
-                    <div className="px-4 pl-5 pb-4 border-t border-border space-y-5 pt-4">
+                    <div className="space-y-6 border-t border-border px-5 pb-5 pl-6 pt-5">
                       {/* Skills — full */}
                       {career.skills.length > 0 && (
                         <div>
-                          <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2.5">
+                          <h4 className="cc-kicker mb-3 text-muted-foreground">
                             技能树
                           </h4>
-                          <div className="flex flex-wrap gap-1.5">
+                          {/* 编号 + 分隔线的排版权重，替代圆角 chip 堆叠 */}
+                          <ol className="grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
                             {career.skills.map((skill, i) => (
-                              <span
+                              <li
                                 key={skill}
-                                className="text-xs px-2.5 py-1 rounded-full bg-primary/5 text-primary border border-primary/10 transition-opacity"
-                                style={{ opacity: 1 - i * 0.06 }}
+                                className="flex items-baseline gap-3 border-b border-border pb-1.5"
                               >
-                                {skill}
-                              </span>
+                                <span
+                                  aria-hidden="true"
+                                  className="cc-num w-6 flex-shrink-0 text-xs text-muted-foreground"
+                                >
+                                  {String(i + 1).padStart(2, "0")}
+                                </span>
+                                <span className="text-sm text-foreground">{skill}</span>
+                              </li>
                             ))}
-                          </div>
+                          </ol>
                         </div>
                       )}
 
                       {/* Position ladder — signature element */}
                       {career.positions.length > 0 && (
                         <div>
-                          <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-3">
+                          <h4 className="cc-kicker mb-4 text-muted-foreground">
                             职业晋升路径
                           </h4>
                           <div className="relative">
-                            {/* Vertical timeline line */}
-                            <div className="absolute left-[9px] top-1 bottom-1 w-px bg-border" />
-                            <div className="space-y-3">
+                            {/* Vertical axis */}
+                            <div aria-hidden="true" className="absolute bottom-3.5 left-[13px] top-3.5 w-px bg-border" />
+                            <ol className="space-y-5">
                               {career.positions.map((pos, i) => (
-                                <div key={pos.title} className="relative flex gap-3 pl-6">
-                                  {/* Timeline dot */}
-                                  <div
-                                    className={`absolute left-[5px] top-1.5 w-[9px] h-[9px] rounded-full border-2 border-background ${
-                                      i === 0
-                                        ? "bg-primary ring-2 ring-primary/20"
-                                        : i === career.positions.length - 1
-                                          ? "bg-amber-400"
-                                          : "bg-muted-foreground/30"
+                                <li key={pos.title} className="relative flex gap-4">
+                                  {/* 品牌色编号：职级由色块 + 文字标签共同表达 */}
+                                  <span
+                                    aria-hidden="true"
+                                    className={`cc-num flex h-7 w-7 flex-shrink-0 items-center justify-center text-xs ${
+                                      LEVEL_COLORS[pos.level] || "bg-dn-steel text-dn-on-color"
                                     }`}
-                                  />
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                      <span className="text-sm font-semibold text-foreground">
+                                  >
+                                    {i + 1}
+                                  </span>
+                                  <div className="min-w-0 flex-1">
+                                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+                                      <span className="text-base text-foreground">
                                         {pos.title}
                                       </span>
-                                      <span
-                                        className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                                          LEVEL_COLORS[pos.level] || "bg-gray-100 text-gray-600"
-                                        }`}
-                                      >
+                                      <span className="cc-kicker text-muted-foreground">
                                         {LEVEL_LABELS[pos.level] || pos.level}
                                       </span>
                                     </div>
-                                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                                       {pos.dailyWork}
                                     </p>
                                   </div>
-                                </div>
+                                </li>
                               ))}
-                            </div>
+                            </ol>
                           </div>
                         </div>
                       )}
 
                       {/* Requirements */}
                       <div>
-                        <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">
+                        <h4 className="cc-kicker mb-3 text-muted-foreground">
                           入门条件
                         </h4>
-                        <ul className="space-y-1">
+                        <ul className="space-y-2">
                           {career.requirements.map((req) => (
-                            <li key={req} className="text-sm text-foreground/75 flex items-start gap-2">
-                              <span className="text-primary/40 mt-1.5 block w-1 h-1 rounded-full bg-primary/40 flex-shrink-0" />
+                            <li key={req} className="flex items-start gap-3 text-sm text-foreground">
+                              <span
+                                aria-hidden="true"
+                                className="mt-[7px] block h-1.5 w-1.5 flex-shrink-0 bg-dn-teal"
+                              />
                               {req}
                             </li>
                           ))}
@@ -1959,15 +1961,16 @@ export function CareerExplorer() {
                       </div>
 
                       {/* Salary — deliberately subdued */}
-                      <div className="pt-2 border-t border-border flex items-center gap-3">
-                        <span className="text-xs text-muted-foreground/80">
-                          参考薪资
+                      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-t border-border pt-4">
+                        <span className="cc-kicker text-muted-foreground">
+                          参考薪资（内置静态数据）
                         </span>
-                        <span className="text-sm font-medium text-foreground/70 tabular-nums">
-                          ¥{formatSalary(career.salaryRange)}/月
+                        <span className="cc-num text-lg text-foreground">
+                          ¥{formatSalary(career.salaryRange)}
                         </span>
+                        <span className="text-xs text-muted-foreground">/月</span>
                         {career.salaryNote && (
-                          <span className="text-[11px] text-muted-foreground/60 hidden sm:inline">
+                          <span className="text-xs text-muted-foreground">
                             · {career.salaryNote}
                           </span>
                         )}

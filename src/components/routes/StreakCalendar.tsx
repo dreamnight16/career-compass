@@ -10,12 +10,14 @@ interface StreakCalendarProps {}
 const MONTH_NAMES = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
 const DAY_NAMES = ['一', '二', '三', '四', '五', '六', '日'];
 
+/** 热力图色阶：全部来自 DNDL Token（Teal → Cyan，最高档落到 Ink）。
+ *  颜色只是辅助，图例同时给出每一档的互动次数区间文字。 */
 function cellColor(count: number): string {
-  if (count === 0) return 'bg-secondary/40';
-  if (count <= 2) return 'bg-emerald-100';
-  if (count <= 4) return 'bg-emerald-200';
-  if (count <= 8) return 'bg-emerald-400';
-  return 'bg-emerald-600';
+  if (count === 0) return 'bg-dn-divider';
+  if (count <= 2) return 'cc-tint-teal';
+  if (count <= 4) return 'bg-dn-teal';
+  if (count <= 8) return 'bg-dn-cyan';
+  return 'bg-dn-ink';
 }
 
 interface DayCell {
@@ -61,29 +63,46 @@ export function StreakCalendar(_props: StreakCalendarProps) {
     }
   });
 
+  // 选中日的互动次数（仅用于文字复述，未选中时为 0）
+  const selectedDayCount = selectedDay
+    ? (cells.find(c => c.date === selectedDay)?.count ?? 0)
+    : 0;
+
   return (
     <div className="p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Flame className="h-5 w-5 text-orange-500" />
-          <h2 className="text-lg font-bold text-foreground">活跃记录</h2>
+          <Flame className="h-5 w-5 text-dn-orange" aria-hidden="true" />
+          <h2 className="cc-h2 text-foreground">活跃记录</h2>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-primary">
-            连续打卡 {streak} 天
+          <span className="text-sm text-muted-foreground">
+            连续打卡 <span className="cc-num text-foreground">{streak}</span> 天
           </span>
-          {streak >= 7 && <span className="text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-700">🏅 七日之约</span>}
+          {streak >= 7 && (
+            <span className="border border-dn-emerald cc-tint-emerald px-2 py-1 text-xs text-foreground">
+              <span aria-hidden="true">🏅</span> 七日之约 · 已达成
+            </span>
+          )}
         </div>
       </div>
 
       {/* Month navigation */}
       <div className="flex items-center gap-2 mb-3">
-        <button onClick={() => setOffset(o => o - 1)} className="p-1 rounded hover:bg-secondary transition-colors">
-          <ChevronLeft className="h-4 w-4" />
+        <button
+          onClick={() => setOffset(o => o - 1)}
+          className="flex min-h-11 min-w-11 items-center justify-center text-muted-foreground hover:bg-dn-divider hover:text-foreground transition-colors"
+          aria-label="查看更早的 30 天"
+        >
+          <ChevronLeft className="h-4 w-4" aria-hidden="true" />
         </button>
-        <button onClick={() => setOffset(o => o < 0 ? o + 1 : 0)} className="p-1 rounded hover:bg-secondary transition-colors">
-          <ChevronRight className="h-4 w-4" />
+        <button
+          onClick={() => setOffset(o => o < 0 ? o + 1 : 0)}
+          className="flex min-h-11 min-w-11 items-center justify-center text-muted-foreground hover:bg-dn-divider hover:text-foreground transition-colors"
+          aria-label="查看更近的 30 天"
+        >
+          <ChevronRight className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
 
@@ -119,15 +138,15 @@ export function StreakCalendar(_props: StreakCalendarProps) {
                     key={`${wi}-${di}`}
                     onClick={() => setSelectedDay(isSelected ? null : cell.date)}
                     className={cn(
-                      'w-3 h-3 rounded-sm transition-all duration-200',
+                      'w-3 h-3 transition-colors duration-200',
                       cellColor(cell.count),
                       isToday && 'ring-1 ring-primary',
-                      isSelected && 'ring-2 ring-primary/60 scale-125',
-                      'hover:scale-150 hover:z-10 hover:ring-1 hover:ring-foreground/20'
+                      isSelected && 'ring-2 ring-dn-ink',
+                      'hover:ring-2 hover:ring-dn-ink'
                     )}
-                    style={{ animationDelay: `${(wi * 7 + di) * 0.005}s` }}
                     title={`${cell.date}: ${cell.count} 次互动`}
                     aria-label={`${cell.date}: ${cell.count} 次互动`}
+                    aria-pressed={isSelected}
                   />
                 );
               })}
@@ -136,21 +155,28 @@ export function StreakCalendar(_props: StreakCalendarProps) {
         </div>
       </div>
 
-      {/* Legend */}
-      <div className="flex items-center gap-1 mt-3 text-[10px] text-muted-foreground">
-        <span>少</span>
-        <span className={cn('w-3 h-3 rounded-sm', cellColor(0))} />
-        <span className={cn('w-3 h-3 rounded-sm', cellColor(1))} />
-        <span className={cn('w-3 h-3 rounded-sm', cellColor(3))} />
-        <span className={cn('w-3 h-3 rounded-sm', cellColor(5))} />
-        <span className={cn('w-3 h-3 rounded-sm', cellColor(9))} />
-        <span>多</span>
+      {/* 图例：色阶 + 文字区间说明，颜色不是唯一信息 */}
+      <div className="mt-4">
+        <p className="text-[11px] text-muted-foreground mb-1">图例 · 单日互动次数（少 → 多）</p>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-muted-foreground">
+          <span className="inline-flex items-center gap-1"><span className={cn('inline-block w-3 h-3 shrink-0', cellColor(0))} />0 次</span>
+          <span className="inline-flex items-center gap-1"><span className={cn('inline-block w-3 h-3 shrink-0', cellColor(1))} />1–2 次</span>
+          <span className="inline-flex items-center gap-1"><span className={cn('inline-block w-3 h-3 shrink-0', cellColor(3))} />3–4 次</span>
+          <span className="inline-flex items-center gap-1"><span className={cn('inline-block w-3 h-3 shrink-0', cellColor(5))} />5 次及以上</span>
+        </div>
       </div>
+
+      {/* 选中日期：用文字复述选中内容，不靠颜色单独表达 */}
+      {selectedDay && (
+        <p className="mt-3 text-xs text-muted-foreground">
+          已选 <span className="cc-num text-foreground">{selectedDay}</span> · 当日互动 <span className="cc-num text-foreground">{selectedDayCount}</span> 次
+        </p>
+      )}
 
       {/* Dynamic tip */}
       {streak > 0 && streak < 7 && (
         <p className="mt-3 text-xs text-muted-foreground">
-          💡 再坚持 <span className="font-semibold text-primary">{7 - streak}</span> 天就能解锁「七日之约」徽章！
+          再坚持 <span className="cc-num text-foreground">{7 - streak}</span> 天就能解锁「七日之约」徽章
         </p>
       )}
     </div>

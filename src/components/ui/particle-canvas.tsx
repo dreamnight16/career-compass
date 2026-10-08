@@ -20,14 +20,41 @@ interface ParticleCanvasProps {
   onComplete?: () => void;
 }
 
-const COLORS_BY_MODE: Record<ParticleMode, string[]> = {
-  'confetti': ['#c96442', '#f59e0b', '#10b981', '#3b82f6', '#ec4899', '#8b5cf6', '#f97316'],
-  'gold-spark': ['#f59e0b', '#fbbf24', '#fcd34d', '#fef3c7'],
-  'smoke': ['rgba(107,90,78,0.6)', 'rgba(107,90,78,0.3)', 'rgba(107,90,78,0.15)'],
+/** DNDL Token 兜底值：仅在 getComputedStyle 读不到 Token 时使用（SSR / Token 文件未加载）。 */
+const TOKEN_FALLBACK: Record<string, string> = {
+  '--dn-teal': '#59AAA5',
+  '--dn-cyan': '#70B2D1',
+  '--dn-emerald': '#72AD8C',
+  '--dn-violet': '#A18BC8',
+  '--dn-amber': '#D4AC65',
+  '--dn-orange': '#D78E74',
+  '--dn-steel': '#829BA9',
+  '--dn-ink-secondary': '#657B77',
+  '--dn-ink-muted': '#82938F',
 };
 
+function readToken(name: string): string {
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return TOKEN_FALLBACK[name] ?? TOKEN_FALLBACK['--dn-teal'];
+  }
+  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return value || TOKEN_FALLBACK[name] || TOKEN_FALLBACK['--dn-teal'];
+}
+
+/** 粒子配色全部来自 DNDL Token，不使用品牌外颜色或金色渐变。
+ *  gold-spark 改为 Amber / Orange / Cyan / Teal 的品牌组合。 */
+const TOKENS_BY_MODE: Record<ParticleMode, string[]> = {
+  'confetti': ['--dn-teal', '--dn-cyan', '--dn-emerald', '--dn-violet', '--dn-amber', '--dn-orange', '--dn-steel'],
+  'gold-spark': ['--dn-amber', '--dn-orange', '--dn-cyan', '--dn-teal'],
+  'smoke': ['--dn-ink-secondary', '--dn-ink-muted', '--dn-ink-secondary'],
+};
+
+function colorsByMode(mode: ParticleMode): string[] {
+  return TOKENS_BY_MODE[mode].map(readToken);
+}
+
 function createParticles(mode: ParticleMode, w: number, h: number, count: number): Particle[] {
-  const colors = COLORS_BY_MODE[mode];
+  const colors = colorsByMode(mode);
   const particles: Particle[] = [];
   for (let i = 0; i < count; i++) {
     const angle = Math.random() * Math.PI * 2;

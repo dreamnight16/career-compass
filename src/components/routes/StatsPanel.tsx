@@ -74,15 +74,15 @@ export function StatsPanel(_props: StatsPanelProps) {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-          <TrendingUp className="h-5 w-5 text-primary" />
+        <h2 className="cc-h2 text-foreground flex items-center gap-2">
+          <TrendingUp className="h-5 w-5 text-dn-teal" aria-hidden="true" />
           我的数据
         </h2>
         <button
           onClick={exportData}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+          className="inline-flex min-h-11 items-center gap-1.5 border border-input px-3 text-xs text-muted-foreground hover:bg-dn-divider hover:text-foreground transition-colors"
         >
-          <Download className="h-3.5 w-3.5" />
+          <Download className="h-3.5 w-3.5" aria-hidden="true" />
           导出数据
         </button>
       </div>
@@ -92,34 +92,34 @@ export function StatsPanel(_props: StatsPanelProps) {
         {metricCards.map((card, i) => (
           <button
             key={card.label}
-            className="group flex flex-col items-start rounded-xl border border-border/40 bg-card p-4 text-left transition-all hover:border-primary/30 hover:shadow-sm"
+            className="group flex flex-col items-start border border-border bg-card p-4 text-left"
             style={{ animationDelay: `${i * 0.08}s` }}
           >
-            <card.icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors mb-2" />
-            <span className="text-2xl font-bold text-foreground count-flip">{card.value}</span>
-            <span className="text-xs text-muted-foreground mt-1">{card.label}{card.trend ? ` · ${card.trend}` : ''}</span>
+            <card.icon className="h-4 w-4 text-muted-foreground mb-2" aria-hidden="true" />
+            <span className="cc-num text-3xl text-foreground count-flip">{card.value}</span>
+            <span className="cc-kicker text-muted-foreground mt-2">{card.label}{card.trend ? ` · ${card.trend}` : ''}</span>
           </button>
         ))}
       </div>
 
       {/* Mini trend chart */}
-      <div className="rounded-xl border border-border/40 bg-card p-4">
-        <h3 className="text-sm font-semibold text-foreground mb-3">📈 本周活跃（互动次数）</h3>
-        <svg viewBox="0 0 200 60" className="w-full h-16">
+      <div className="border border-border bg-card p-4">
+        <h3 className="cc-kicker text-foreground mb-3">本周活跃（互动次数）</h3>
+        <svg viewBox="0 0 200 60" className="w-full h-16" role="img" aria-label="最近 7 天每日互动次数的折线图">
           <polyline
             points={trendPoints}
             fill="none"
-            stroke="#c96442"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
+            style={{ stroke: 'var(--dn-teal, #59AAA5)' }}
           />
           {weekDays.map((d, i) => {
             const x = i * (200 / (weekDays.length - 1));
             const y = 60 - (d.count / maxCount) * 50;
             return (
               <g key={d.date}>
-                <circle cx={x} cy={y} r="3" fill="#c96442" className="hover:r-4 transition-all" />
+                <circle cx={x} cy={y} r="3" style={{ fill: 'var(--dn-teal, #59AAA5)' }} />
                 <title>{d.date}: {d.count} 次</title>
               </g>
             );
@@ -132,15 +132,15 @@ export function StatsPanel(_props: StatsPanelProps) {
 
       {/* Recent badges */}
       {recentBadges.length > 0 && (
-        <div className="rounded-xl border border-border/40 bg-card p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-3">🏅 最近解锁</h3>
+        <div className="border border-border bg-card p-4">
+          <h3 className="cc-kicker text-foreground mb-3">最近解锁</h3>
           <div className="flex flex-wrap gap-2">
             {recentBadges.map(ba => {
               const def = ACHIEVEMENTS.find(a => a.id === ba.id);
               if (!def) return null;
               return (
-                <span key={ba.id} className="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200 px-3 py-1 text-xs text-foreground">
-                  {def.icon} {def.title}
+                <span key={ba.id} className="inline-flex items-center gap-1 border border-dn-emerald cc-tint-emerald px-3 py-1 text-xs text-foreground">
+                  <span aria-hidden="true">{def.icon}</span> {def.title}
                 </span>
               );
             })}
@@ -149,11 +149,11 @@ export function StatsPanel(_props: StatsPanelProps) {
       )}
 
       {/* Chat stats */}
-      <div className="rounded-xl border border-border/40 bg-card p-4">
-        <h3 className="text-sm font-semibold text-foreground mb-3">💬 对话统计</h3>
+      <div className="border border-border bg-card p-4">
+        <h3 className="cc-kicker text-foreground mb-3">对话统计</h3>
         <div className="flex items-center gap-6">
-          <div><span className="text-2xl font-bold text-foreground">{stats.chats}</span><span className="text-xs text-muted-foreground ml-1">累计对话</span></div>
-          <div><span className="text-2xl font-bold text-foreground">{getActivities().filter(a => a.type === 'competency').length}</span><span className="text-xs text-muted-foreground ml-1">能力评估</span></div>
+          <div><span className="cc-num text-3xl text-foreground">{stats.chats}</span><span className="text-xs text-muted-foreground ml-2">累计对话</span></div>
+          <div><span className="cc-num text-3xl text-foreground">{getActivities().filter(a => a.type === 'competency').length}</span><span className="text-xs text-muted-foreground ml-2">能力评估</span></div>
         </div>
       </div>
     </div>

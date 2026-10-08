@@ -67,27 +67,38 @@ export function Toaster() {
   }, [add]);
 
   const icons = { success: CheckCircle, error: XCircle, info: Info };
-  const colors = { success: 'border-emerald-200 bg-emerald-50 text-emerald-800', error: 'border-red-200 bg-red-50 text-red-800', info: 'border-blue-200 bg-blue-50 text-blue-800' };
+  /** 品牌实色场：成功 Emerald / 错误 Crimson / 信息 Cyan，色块上的正文一律用 on-color */
+  const fields: Record<ToastType, string> = {
+    success: 'bg-dn-emerald',
+    error: 'bg-dn-crimson',
+    info: 'bg-dn-cyan',
+  };
+  /** 状态不能只用颜色表达：状态词与图标同时出现 */
+  const labels: Record<ToastType, string> = { success: '成功', error: '出错', info: '提示' };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2">
+    <div role="status" aria-live="polite" className="fixed bottom-6 right-6 z-50 flex flex-col gap-2">
       {toasts.map(t => {
         const Icon = icons[t.type];
         return (
           <div key={t.id}
-            className={`flex items-center gap-2.5 rounded-xl border px-4 py-3 text-sm shadow-lg backdrop-blur-sm transition-all duration-200 ${colors[t.type]} ${t.exiting ? 'opacity-0 translate-x-4' : 'opacity-100 spring-in'}`}>
-            <Icon className="h-4 w-4 shrink-0" />
-            <span className="font-medium">{t.message}</span>
+            className={`dn-elevation-3 flex max-w-sm items-center gap-3 px-4 text-sm text-dn-on-color transition-all duration-hover ${fields[t.type]} ${t.exiting ? 'translate-x-4 opacity-0' : 'spring-in opacity-100'}`}>
+            <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+            <span className="cc-kicker shrink-0">{labels[t.type]}</span>
+            <span className="min-w-0 flex-1">{t.message}</span>
             {t.action && (
               <button
                 onClick={() => { t.action!.onClick(); manualClose(t.id); }}
-                className="ml-1 rounded-md px-2 py-0.5 text-xs font-medium underline underline-offset-2 hover:opacity-80"
+                className="dn-focus min-h-11 shrink-0 px-2 text-xs underline underline-offset-2"
               >
                 {t.action.label}
               </button>
             )}
             <button onClick={() => manualClose(t.id)}
-              className="ml-2 rounded p-0.5 hover:bg-black/5"><X className="h-3.5 w-3.5" /></button>
+              aria-label="关闭通知"
+              className="dn-interactive dn-focus -mr-2 inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center">
+              <X className="h-4 w-4" aria-hidden="true" />
+            </button>
           </div>
         );
       })}

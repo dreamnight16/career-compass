@@ -1,66 +1,109 @@
-'use client';
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
+import {
+  BOTTOM_MAJORS,
+  SALARY_NATIONAL_AVG,
+  SALARY_RECORDED_AT,
+  SALARY_SAMPLE_COUNT,
+  SALARY_SOURCE,
+  SALARY_SPREAD,
+  TOP_MAJORS,
+  formatRecordedAt,
+} from '@/data/catalog';
 
-import { ArrowDown } from 'lucide-react';
+const yuan = (n: number) => `¥${n.toLocaleString('zh-CN')}`;
 
-interface HeroSectionProps {
-  onEnter: () => void;
-}
-
-export function HeroSection({ onEnter }: HeroSectionProps) {
+/**
+ * 首页 Hero。
+ *
+ * 构图：左侧排版（字体本身即界面），右侧一块 Ink 实色场承载真实数据快照。
+ * 数据全部来自 public/data/*.json，是数据文件记录值，不是实时状态。
+ */
+export function HeroSection() {
   return (
-    <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden noise-bg">
-      {/* 柔和光晕 */}
-      <div
-        className="pointer-events-none absolute top-1/3 left-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-20"
-        style={{ background: 'radial-gradient(circle, rgba(70,89,184,0.22) 0%, rgba(240,179,90,0.12) 40%, transparent 70%)' }}
-      />
+    <section className="border-b border-border">
+      <div className="mx-auto grid max-w-[1400px] grid-cols-1 lg:grid-cols-12">
+        {/* 左：排版 */}
+        <div className="px-6 py-16 lg:col-span-7 lg:px-14 lg:py-24">
+          <p className="cc-kicker text-muted-foreground">DreamNight · 歧点 · 决策辅助</p>
 
-      <div className="relative z-10 flex flex-col items-center gap-6 px-6 text-center">
-        {/* 标题 */}
-        <h1 className="font-serif-hero text-[clamp(3.5rem,8vw,7rem)] font-bold leading-none tracking-tight text-foreground hero-reveal">
-          歧点
-        </h1>
+          <h1 className="cc-display mt-6 text-foreground">歧点</h1>
 
-        {/* 签名装饰线 — SVG手绘风 */}
-        <svg
-          className="hero-reveal hero-reveal-delay-1 h-3 w-28"
-          viewBox="0 0 112 12" fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M2 10 Q14 2 28 6 T56 6 T84 4 T110 8"
-            stroke="var(--primary)"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            fill="none"
-            opacity="0.7"
-          />
-        </svg>
+          <p className="cc-h2 mt-4 text-foreground">为你探明前路</p>
 
-        {/* 副标题 */}
-        <p className="hero-reveal hero-reveal-delay-1 text-lg font-medium tracking-wide text-muted-foreground">
-          为你探明前路
-        </p>
+          <div className="cc-body mt-10 max-w-xl space-y-1 text-muted-foreground">
+            <p>不是告诉你该选哪条路</p>
+            <p>而是让你看清每条路的样子</p>
+            <p>然后自己决定</p>
+          </div>
 
-        {/* 三行文案 */}
-        <div className="hero-reveal-delay-2 hero-reveal mt-2 space-y-1">
-          <p className="text-sm text-muted-foreground/70">不是告诉你该选哪条路</p>
-          <p className="text-sm text-muted-foreground/70">而是让你看清每条路的样子</p>
-          <p className="text-sm text-muted-foreground/70">然后自己决定</p>
+          <div className="mt-10 flex flex-wrap items-stretch gap-3">
+            <Link
+              href="/main"
+              className="dn-interactive dn-focus inline-flex min-h-11 items-center gap-2 bg-primary px-8 py-3 text-base font-medium text-primary-foreground"
+            >
+              开始探索
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+            <a
+              href="#board"
+              className="dn-focus inline-flex min-h-11 items-center gap-2 border border-input px-8 py-3 text-base font-medium text-foreground transition-colors duration-hover hover:bg-secondary"
+            >
+              先看四段路
+            </a>
+          </div>
+
+          <p className="mt-8 max-w-xl border-t border-border pt-4 text-sm text-muted-foreground">
+            AI 助手是可选的。没有配置密钥时，个人画像、资源库、数据对比、路径模拟与决策日志照常可用。
+          </p>
         </div>
 
-        {/* CTA */}
-        <button
-          onClick={onEnter}
-          className="hero-reveal-delay-2 hero-reveal mt-6 rounded-xl bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(.34,1.56,.64,1)] hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(70,89,184,.24)] active:translate-y-0 active:scale-[0.98]"
-        >
-          开始探索
-        </button>
-      </div>
+        {/* 右：Ink 实色场 · 真实数据快照 */}
+        <aside className="cc-on-ink bg-dn-ink px-6 py-16 lg:col-span-5 lg:px-12 lg:py-24">
+          <p className="cc-kicker text-dn-on-ink">静态数据 · 非实时</p>
 
-      {/* 向下滚动提示 */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce text-muted-foreground/30">
-        <ArrowDown className="h-5 w-5" />
+          <p className="cc-num mt-6 text-[4.5rem] text-dn-on-ink">{SALARY_SAMPLE_COUNT}</p>
+          <p className="cc-body text-dn-on-ink">个本科专业的毕业起薪样本</p>
+
+          <dl className="mt-10 grid grid-cols-2 gap-x-6 gap-y-8">
+            <div>
+              <dt className="text-sm text-dn-on-ink">本科毕业平均月收入</dt>
+              <dd className="cc-num mt-1 text-3xl text-dn-on-ink">{yuan(SALARY_NATIONAL_AVG)}</dd>
+            </div>
+            <div>
+              <dt className="text-sm text-dn-on-ink">最高与最低专业差额</dt>
+              <dd className="cc-num mt-1 text-3xl text-dn-on-ink">{yuan(SALARY_SPREAD)}</dd>
+            </div>
+          </dl>
+
+          <div className="cc-rule-on-ink mt-10 pt-6">
+            <h2 className="cc-kicker text-dn-on-ink">起薪最高的 5 个专业</h2>
+            <ul className="mt-3 space-y-2">
+              {TOP_MAJORS.map((m) => (
+                <li key={m.name} className="flex items-baseline justify-between gap-4">
+                  <span className="cc-body text-dn-on-ink">{m.name}</span>
+                  <span className="cc-num text-lg text-dn-on-ink">{yuan(m.salary)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="cc-rule-on-ink mt-8 pt-6">
+            <h2 className="cc-kicker text-dn-on-ink">起薪最低的 5 个专业</h2>
+            <ul className="mt-3 space-y-2">
+              {BOTTOM_MAJORS.map((m) => (
+                <li key={m.name} className="flex items-baseline justify-between gap-4">
+                  <span className="cc-body text-dn-on-ink">{m.name}</span>
+                  <span className="cc-num text-lg text-dn-on-ink">{yuan(m.salary)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <p className="mt-8 text-xs leading-relaxed text-dn-on-ink">
+            来源：{SALARY_SOURCE}。数据文件记录时间 {formatRecordedAt(SALARY_RECORDED_AT)}，为静态数据，不会自动刷新。
+          </p>
+        </aside>
       </div>
     </section>
   );

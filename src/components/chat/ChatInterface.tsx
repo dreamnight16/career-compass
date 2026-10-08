@@ -181,7 +181,7 @@ export function ChatInterface() {
                 <div className="max-w-[82%] ml-6">
                   <button
                     onClick={() => { setInput('能再详细解释一下吗？'); }}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-card px-3 py-1.5 text-xs text-muted-foreground hover:border-primary/30 hover:text-primary hover:bg-primary/5 transition-all"
+                    className="dn-focus btn-press inline-flex min-h-11 items-center border-b border-border px-1 py-2 text-left text-xs text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
                   >
                   还想继续的话，可以问：“能再详细解释一下吗？”
                   </button>
@@ -190,19 +190,20 @@ export function ChatInterface() {
             )}
           </div>
         ))}
-        {loading && messages[messages.length - 1]?.content === '' && <div className="mb-5 flex justify-start">
-            <div className="max-w-[82%]"><div className="mb-1 flex items-center gap-2"><span className="text-xs font-medium uppercase tracking-wider text-primary/60">歧点</span><span className="h-px flex-1 bg-border" /></div>
-          <div className="rounded-r-xl rounded-bl-md border-l-[3px] border-primary/40 bg-card px-4 py-3 shadow-sm">
-            <div className="flex items-center gap-1.5"><div className="h-2 w-2 animate-bounce rounded-full bg-primary/50" /><div className="h-2 w-2 animate-bounce rounded-full bg-primary/50 [animation-delay:0.12s]" /><div className="h-2 w-2 animate-bounce rounded-full bg-primary/50 [animation-delay:0.24s]" /></div></div></div></div>}
+        {loading && messages[messages.length - 1]?.content === '' && <div className="mb-5 flex justify-start" role="status">
+            <div className="max-w-[82%]"><div className="mb-1 flex items-center gap-2"><span className="cc-kicker text-foreground">歧点</span><span className="h-px flex-1 bg-border" /></div>
+          <div className="flex items-center gap-2.5 border-l-[3px] border-primary bg-card px-4 py-3">
+            <span className="h-3.5 w-3.5 shrink-0 animate-spin rounded-full border-2 border-primary border-t-transparent" aria-hidden="true" />
+            <span className="text-sm text-muted-foreground">正在整理回复…</span></div></div></div>}
         <div ref={chatEndRef} />
       </div>
-      <div className="shrink-0 border-t border-border/50 bg-card/60 px-5 py-3 backdrop-blur-sm">
+      <div className="shrink-0 border-t border-border bg-card px-5 py-3">
         <div className="flex items-end gap-2">
           <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown} placeholder="说说你现在在纠结什么..." rows={2}
-            className="flex-1 resize-none rounded-xl border border-input bg-background px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20" disabled={loading}
+            className="min-h-11 flex-1 resize-none border border-input bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-primary disabled:bg-secondary disabled:text-muted-foreground" disabled={loading}
             aria-label="聊天输入" />
           <button onClick={handleSend} disabled={loading || !input.trim()}
-            className="rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-20">发送</button>
+            className="dn-focus btn-press min-h-11 shrink-0 bg-primary px-5 py-2.5 text-sm text-primary-foreground disabled:cursor-not-allowed disabled:bg-secondary disabled:text-muted-foreground">发送</button>
         </div>
         <p className="mt-1.5 text-center text-[11px] text-muted-foreground">先把路看清楚，决定还是你来做</p>
       </div>

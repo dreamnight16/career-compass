@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Check, NotebookPen, PenLine, Plus, RotateCcw, Trash2, X } from 'lucide-react';
 import {
   addDecision,
@@ -20,13 +20,21 @@ const NO_LEANING = '还没倾向';
 const DEFAULT_CONFIDENCE = 50;
 const DELETE_CONFIRM_TEXT = '删除这个决策记录？所有想法快照会一起删除。';
 
+// DNDL：默认直角、控件轮廓用 border-input，次要文字只用满强度的 text-muted-foreground。
+// 透明度修饰符在 var() 颜色上不生成 CSS，因此这里不再出现任何 `/10`、`/30` 之类写法。
 const FIELD_CLS =
-  'w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring/40';
+  'dn-focus w-full min-h-11 border border-input bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground placeholder:opacity-60';
 const LABEL_CLS = 'mb-1 block text-xs font-medium text-muted-foreground';
 const PRIMARY_BTN_CLS =
-  'inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm btn-press';
+  'dn-focus btn-press inline-flex min-h-11 items-center justify-center gap-1.5 bg-primary px-4 py-2 text-sm font-medium text-primary-foreground';
 const GHOST_BTN_CLS =
-  'inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground';
+  'dn-focus btn-press inline-flex min-h-11 items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground';
+// 纯图标按钮：必须带 aria-label，并保证 44×44 的可点击目标
+const ICON_BTN_CLS =
+  'dn-focus inline-flex min-h-11 min-w-11 items-center justify-center text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground';
+// 删除按钮：悬停时换成 Crimson 实色场，危险操作有明确的形状与颜色反馈
+const DANGER_BTN_CLS =
+  'dn-focus inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:bg-dn-crimson hover:text-dn-on-color';
 
 interface SnapshotDraft {
   leaning: string;
@@ -72,8 +80,8 @@ function SnapshotFields({
   const selectValue = draft.leaning === NO_LEANING || labels.includes(draft.leaning) ? draft.leaning : NO_LEANING;
 
   return (
-    <div className="space-y-3">
-      <div className="grid gap-3 sm:grid-cols-2">
+    <div className="space-y-4">
+      <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor={`${idPrefix}-leaning`} className={LABEL_CLS}>当前倾向</label>
           <select
@@ -90,7 +98,7 @@ function SnapshotFields({
         </div>
         <div>
           <label htmlFor={`${idPrefix}-confidence`} className={LABEL_CLS}>
-            信心度：<span className="font-semibold text-foreground">{draft.confidence}%</span>
+            信心度：<span className="cc-num text-base text-foreground">{draft.confidence}%</span>
           </label>
           <input
             id={`${idPrefix}-confidence`}
@@ -100,7 +108,7 @@ function SnapshotFields({
             step={5}
             value={draft.confidence}
             onChange={(e) => onChange({ ...draft, confidence: Number(e.target.value) })}
-            className="mt-2.5 w-full accent-primary"
+            className="dn-focus mt-2 w-full min-h-11 accent-primary"
           />
         </div>
       </div>
@@ -133,29 +141,38 @@ function SnapshotFields({
 /** 想法演变时间线，最新的在最后 */
 function SnapshotTimeline({ snapshots }: { snapshots: DecisionSnapshot[] }) {
   if (snapshots.length === 0) {
-    return <p className="text-xs text-muted-foreground">还没有想法记录，点「补记一次想法」写下此刻的权衡</p>;
+    return <p className="text-sm text-muted-foreground">还没有想法记录，点「补记一次想法」写下此刻的权衡</p>;
   }
   return (
-    <ol className="space-y-4 border-l border-border pl-4">
+    <ol className="border-l border-border">
       {snapshots.map((s) => (
-        <li key={s.id} className="relative">
-          <span aria-hidden="true" className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full border-2 border-card bg-primary" />
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            <time dateTime={s.createdAt} className="text-muted-foreground">{formatDate(s.createdAt)}</time>
-            <span className="rounded bg-primary/10 px-1.5 py-0.5 font-medium text-primary">倾向：{s.leaning}</span>
+        <li key={s.id} className="relative pb-6 pl-5 last:pb-0">
+          {/* 时间线节点：方形标记，形状本身也在表达「一次记录」 */}
+          <span
+            aria-hidden="true"
+            className="absolute -left-[3px] top-1.5 h-[5px] w-[5px] bg-dn-teal"
+          />
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <time dateTime={s.createdAt} className="cc-num text-sm text-muted-foreground">
+              {formatDate(s.createdAt)}
+            </time>
+            <span className="text-xs font-medium text-foreground">倾向：{s.leaning}</span>
           </div>
-          <div className="mt-1.5 flex items-center gap-2">
+          <div className="mt-2 flex flex-wrap items-center gap-3">
             <div
               role="img"
               aria-label={`信心度 ${s.confidence}%`}
-              className="h-1.5 w-28 overflow-hidden rounded-full bg-secondary"
+              className="h-1.5 w-32 overflow-hidden bg-muted"
             >
-              <div className="h-full rounded-full bg-primary" style={{ width: `${s.confidence}%` }} />
+              <div className="h-full bg-dn-teal" style={{ width: `${s.confidence}%` }} />
             </div>
-            <span className="text-xs text-muted-foreground">{s.confidence}%</span>
+            <span className="cc-num text-xl text-foreground">{s.confidence}%</span>
+            <span className="text-xs text-muted-foreground">
+              信心度 · {s.confidence >= 70 ? '比较有把握' : s.confidence >= 40 ? '还在摇摆' : '把握很小'}
+            </span>
           </div>
-          {s.reasoning !== '' && <p className="mt-1.5 text-sm leading-relaxed text-foreground">{s.reasoning}</p>}
-          {s.missingInfo !== '' && <p className="mt-1 text-xs text-muted-foreground">还缺：{s.missingInfo}</p>}
+          {s.reasoning !== '' && <p className="mt-2 text-sm leading-relaxed text-foreground">{s.reasoning}</p>}
+          {s.missingInfo !== '' && <p className="mt-1.5 text-xs text-muted-foreground">还缺：{s.missingInfo}</p>}
         </li>
       ))}
     </ol>
@@ -205,20 +222,27 @@ function NewDecisionForm({ onSaved, onCancel }: { onSaved: () => void; onCancel:
   };
 
   return (
-    <section aria-label="记一个新决策" className="mb-6 rounded-2xl border border-border/30 bg-card p-5 spring-in">
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-base font-semibold text-foreground">记一个新决策</h3>
+    <section
+      aria-label="记一个新决策"
+      onKeyDown={(e) => {
+        // Escape 关闭表单（取消按钮是本区块的第一个可聚焦控件之外的操作，语义与「取消」一致）
+        if (e.key === 'Escape') onCancel();
+      }}
+      className="dn-elevation-2 mb-8 border border-border border-l-4 border-l-dn-teal bg-card px-5 py-5 spring-in"
+    >
+      <div className="mb-5 flex items-start justify-between gap-3">
+        <h3 className="cc-h2 text-lg text-foreground">记一个新决策</h3>
         <button
           type="button"
           onClick={onCancel}
           aria-label="取消并关闭表单"
-          className="rounded-lg p-1.5 text-muted-foreground/60 transition-colors hover:bg-secondary hover:text-foreground"
+          className={ICON_BTN_CLS}
         >
-          <X className="h-4 w-4" />
+          <X aria-hidden="true" className="h-4 w-4" />
         </button>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-5">
         <div>
           <label htmlFor="new-decision-question" className={LABEL_CLS}>纠结的问题</label>
           <textarea
@@ -232,24 +256,29 @@ function NewDecisionForm({ onSaved, onCancel }: { onSaved: () => void; onCancel:
         </div>
 
         <div>
-          <p className="mb-2 text-xs font-medium text-muted-foreground">摆在面前的选项（{MIN_OPTIONS}-{MAX_OPTIONS} 个）</p>
-          <div className="space-y-2">
+          <p className="mb-3 text-xs font-medium text-muted-foreground">摆在面前的选项（{MIN_OPTIONS}-{MAX_OPTIONS} 个）</p>
+          <div className="space-y-3">
             {options.map((option, index) => (
-              <div key={index} className="rounded-xl border border-border/30 bg-background p-3">
-                <div className="mb-2 flex items-center justify-between">
-                  <span className="text-xs font-semibold text-muted-foreground">选项 {index + 1}</span>
+              <div key={index} className="border border-border bg-background p-4">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <span className="flex items-baseline gap-2">
+                    <span aria-hidden="true" className="cc-num text-lg text-muted-foreground">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                    <span className="text-xs font-medium text-muted-foreground">选项 {index + 1}</span>
+                  </span>
                   {options.length > MIN_OPTIONS && (
                     <button
                       type="button"
                       onClick={() => handleRemoveOption(index)}
                       aria-label={`删除选项 ${index + 1}`}
-                      className="rounded p-1 text-muted-foreground/50 transition-colors hover:bg-secondary hover:text-foreground"
+                      className={ICON_BTN_CLS}
                     >
-                      <X className="h-3.5 w-3.5" />
+                      <X aria-hidden="true" className="h-4 w-4" />
                     </button>
                   )}
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <input
                     type="text"
                     value={option.label}
@@ -258,7 +287,7 @@ function NewDecisionForm({ onSaved, onCancel }: { onSaved: () => void; onCancel:
                     placeholder="选项名称，如：考研"
                     className={FIELD_CLS}
                   />
-                  <div className="grid gap-2 sm:grid-cols-2">
+                  <div className="grid gap-3 sm:grid-cols-2">
                     <input
                       type="text"
                       value={option.pros}
@@ -281,14 +310,14 @@ function NewDecisionForm({ onSaved, onCancel }: { onSaved: () => void; onCancel:
             ))}
           </div>
           {options.length < MAX_OPTIONS && (
-            <button type="button" onClick={handleAddOption} className={`mt-2 ${GHOST_BTN_CLS}`}>
-              <Plus className="h-3.5 w-3.5" /> 加一个选项
+            <button type="button" onClick={handleAddOption} className={`mt-3 ${GHOST_BTN_CLS}`}>
+              <Plus aria-hidden="true" className="h-4 w-4" /> 加一个选项
             </button>
           )}
         </div>
 
-        <div className="rounded-xl border border-border/30 bg-background p-3">
-          <p className="mb-3 text-xs font-medium text-muted-foreground">此刻的想法（第一条记录）</p>
+        <div className="border-t border-border pt-5">
+          <p className="mb-4 text-xs font-medium text-muted-foreground">此刻的想法（第一条记录）</p>
           <SnapshotFields
             idPrefix="new-snap"
             optionLabels={options.map((o) => o.label)}
@@ -297,9 +326,13 @@ function NewDecisionForm({ onSaved, onCancel }: { onSaved: () => void; onCancel:
           />
         </div>
 
-        {error !== '' && <p role="alert" className="text-xs text-destructive">{error}</p>}
+        {error !== '' && (
+          <p role="alert" className="bg-dn-crimson px-3 py-2 text-sm text-dn-on-color">
+            ✗ {error}
+          </p>
+        )}
 
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-3">
           <button type="button" onClick={handleSave} className={PRIMARY_BTN_CLS}>保存决策</button>
           <button type="button" onClick={onCancel} className={GHOST_BTN_CLS}>取消</button>
         </div>
@@ -313,6 +346,8 @@ function DecisionCard({ decision, onChanged }: { decision: DecisionEntry; onChan
   const [showSettle, setShowSettle] = useState(false);
   const [snapshotDraft, setSnapshotDraft] = useState<SnapshotDraft>(emptySnapshotDraft());
   const [settleChoice, setSettleChoice] = useState('');
+  const snapshotTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const settleTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   const optionLabels = decision.options.map((o) => o.label);
   const latest = decision.snapshots[decision.snapshots.length - 1];
@@ -335,6 +370,17 @@ function DecisionCard({ decision, onChanged }: { decision: DecisionEntry; onChan
     setShowSettle(true);
   };
 
+  // 关闭内联面板后把焦点交回触发按钮；触发按钮在面板打开期间不渲染，故等下一帧再聚焦
+  const closeSnapshotForm = () => {
+    setShowSnapshotForm(false);
+    window.requestAnimationFrame(() => snapshotTriggerRef.current?.focus());
+  };
+
+  const closeSettle = () => {
+    setShowSettle(false);
+    window.requestAnimationFrame(() => settleTriggerRef.current?.focus());
+  };
+
   const handleSaveSnapshot = () => {
     addSnapshot(decision.id, {
       leaning: snapshotDraft.leaning,
@@ -342,7 +388,7 @@ function DecisionCard({ decision, onChanged }: { decision: DecisionEntry; onChan
       reasoning: snapshotDraft.reasoning.trim(),
       missingInfo: snapshotDraft.missingInfo.trim(),
     });
-    setShowSnapshotForm(false);
+    closeSnapshotForm();
     onChanged();
   };
 
@@ -360,36 +406,55 @@ function DecisionCard({ decision, onChanged }: { decision: DecisionEntry; onChan
   };
 
   return (
-    <article className="space-y-4 rounded-2xl border border-border/30 bg-card p-5">
+    <article className="border border-border bg-card p-5">
       <header className="flex items-start justify-between gap-3">
-        <h3 className="text-base font-semibold leading-snug text-foreground">{decision.question}</h3>
+        <h3 className="cc-h2 text-xl leading-snug text-foreground">{decision.question}</h3>
         <button
           type="button"
           onClick={handleDelete}
           aria-label={`删除决策：${decision.question}`}
-          className="shrink-0 rounded-lg p-1.5 text-muted-foreground/50 transition-colors hover:bg-secondary hover:text-destructive"
+          className={DANGER_BTN_CLS}
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash2 aria-hidden="true" className="h-4 w-4" />
         </button>
       </header>
 
-      <div className="grid gap-2 sm:grid-cols-2">
+      {/* 选项对比：编号 + 大字号 + 分隔线，不用小卡片堆叠 */}
+      <div className="mt-5 grid gap-px border border-border bg-border sm:grid-cols-2">
         {decision.options.map((option, index) => (
-          <div key={`${option.label}-${index}`} className="rounded-xl border border-border/30 bg-background px-3 py-2.5">
-            <p className="text-sm font-medium text-foreground">{option.label}</p>
-            {option.pros !== '' && <p className="mt-1 text-xs text-muted-foreground">看重：{option.pros}</p>}
-            {option.cons !== '' && <p className="mt-0.5 text-xs text-muted-foreground">担心：{option.cons}</p>}
+          <div key={`${option.label}-${index}`} className="bg-background px-4 py-3">
+            <div className="flex items-baseline gap-2">
+              <span aria-hidden="true" className="cc-num text-xl text-muted-foreground">
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              <p className="text-sm font-medium text-foreground">{option.label}</p>
+            </div>
+            {option.pros !== '' && (
+              <p className="mt-2 text-sm text-muted-foreground">
+                <span aria-hidden="true">✓</span> 看重：{option.pros}
+              </p>
+            )}
+            {option.cons !== '' && (
+              <p className="mt-1 text-sm text-muted-foreground">
+                <span aria-hidden="true">△</span> 担心：{option.cons}
+              </p>
+            )}
           </div>
         ))}
       </div>
 
-      <div>
-        <p className="mb-2 text-xs font-medium text-muted-foreground">想法时间线</p>
+      <div className="mt-6">
+        <h4 className="cc-kicker mb-3 text-muted-foreground">想法时间线</h4>
         <SnapshotTimeline snapshots={decision.snapshots} />
       </div>
 
       {showSnapshotForm && (
-        <div className="space-y-3 rounded-xl border border-border/30 bg-background p-3 spring-in">
+        <div
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') closeSnapshotForm();
+          }}
+          className="mt-5 space-y-4 border-t border-border pt-5 spring-in"
+        >
           <p className="text-xs font-medium text-muted-foreground">补记一次想法</p>
           <SnapshotFields
             idPrefix={`snap-${decision.id}`}
@@ -397,17 +462,22 @@ function DecisionCard({ decision, onChanged }: { decision: DecisionEntry; onChan
             draft={snapshotDraft}
             onChange={setSnapshotDraft}
           />
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-3">
             <button type="button" onClick={handleSaveSnapshot} className={PRIMARY_BTN_CLS}>保存这次想法</button>
-            <button type="button" onClick={() => setShowSnapshotForm(false)} className={GHOST_BTN_CLS}>取消</button>
+            <button type="button" onClick={closeSnapshotForm} className={GHOST_BTN_CLS}>取消</button>
           </div>
         </div>
       )}
 
       {showSettle && (
-        <div className="space-y-2 rounded-xl border border-border/30 bg-background p-3 spring-in">
+        <div
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') closeSettle();
+          }}
+          className="mt-5 space-y-3 border-t border-border pt-5 spring-in"
+        >
           <label htmlFor={`settle-${decision.id}`} className={LABEL_CLS}>你最终选择了哪个？</label>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-3">
             <select
               id={`settle-${decision.id}`}
               value={settleChoice}
@@ -419,26 +489,28 @@ function DecisionCard({ decision, onChanged }: { decision: DecisionEntry; onChan
               ))}
             </select>
             <button type="button" onClick={handleSettle} className={PRIMARY_BTN_CLS}>确认</button>
-            <button type="button" onClick={() => setShowSettle(false)} className={GHOST_BTN_CLS}>取消</button>
+            <button type="button" onClick={closeSettle} className={GHOST_BTN_CLS}>取消</button>
           </div>
         </div>
       )}
 
       {!showSnapshotForm && !showSettle && (
-        <div className="flex flex-wrap gap-2 pt-1">
+        <div className="mt-5 flex flex-wrap gap-3">
           <button
             type="button"
             onClick={openSnapshotForm}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-secondary px-3.5 py-2 text-xs font-medium text-foreground transition-colors hover:bg-secondary/80 btn-press"
+            ref={snapshotTriggerRef}
+            className={PRIMARY_BTN_CLS}
           >
-            <PenLine className="h-3.5 w-3.5" /> 补记一次想法
+            <PenLine aria-hidden="true" className="h-4 w-4" /> 补记一次想法
           </button>
           <button
             type="button"
             onClick={openSettle}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-border px-3.5 py-2 text-xs font-medium text-foreground transition-colors hover:bg-secondary btn-press"
+            ref={settleTriggerRef}
+            className="dn-focus btn-press inline-flex min-h-11 items-center justify-center gap-1.5 border border-input px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
           >
-            <Check className="h-3.5 w-3.5" /> 已想清楚
+            <Check aria-hidden="true" className="h-4 w-4" /> 已想清楚
           </button>
         </div>
       )}
@@ -460,8 +532,11 @@ function SettledCard({ decision, onChanged }: { decision: DecisionEntry; onChang
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border/30 bg-card px-4 py-3 opacity-70 transition-opacity hover:opacity-100">
-      <span className="shrink-0 rounded bg-primary/10 px-1.5 py-0.5 text-xs font-medium text-primary">已决定</span>
+    <div className="flex flex-wrap items-center gap-3 border border-border border-l-4 border-l-dn-emerald bg-card px-4 py-3">
+      {/* 状态同时由文字与色块表达，不只靠颜色 */}
+      <span className="shrink-0 bg-dn-emerald px-2 py-1 text-xs font-medium text-dn-on-color">
+        ✓ 已决定
+      </span>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm text-foreground">{decision.question}</p>
         {decision.settledChoice !== undefined && (
@@ -469,15 +544,15 @@ function SettledCard({ decision, onChanged }: { decision: DecisionEntry; onChang
         )}
       </div>
       <button type="button" onClick={handleReopen} className={GHOST_BTN_CLS}>
-        <RotateCcw className="h-3 w-3" /> 重新打开
+        <RotateCcw aria-hidden="true" className="h-4 w-4" /> 重新打开
       </button>
       <button
         type="button"
         onClick={handleDelete}
         aria-label={`删除决策：${decision.question}`}
-        className="rounded-lg p-1.5 text-muted-foreground/50 transition-colors hover:bg-secondary hover:text-destructive"
+        className={DANGER_BTN_CLS}
       >
-        <Trash2 className="h-3.5 w-3.5" />
+        <Trash2 aria-hidden="true" className="h-4 w-4" />
       </button>
     </div>
   );
@@ -485,23 +560,24 @@ function SettledCard({ decision, onChanged }: { decision: DecisionEntry; onChang
 
 function EmptyState({ onCreate }: { onCreate: () => void }) {
   return (
-    <div className="flex flex-col items-center py-16 text-center spring-in">
-      <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-3xl bg-secondary">
-        <NotebookPen className="h-10 w-10 text-muted-foreground/30" />
+    <div className="flex flex-col items-start py-16 spring-in">
+      {/* 实色场 + 图标，替代圆角浅底图标块 */}
+      <div className="mb-6 flex h-24 w-24 items-center justify-center bg-dn-violet text-dn-on-color">
+        <NotebookPen aria-hidden="true" className="h-10 w-10" />
       </div>
-      <h3 className="mb-2 text-lg font-semibold text-foreground">还没有决策记录</h3>
-      <p className="mb-1 max-w-md text-sm leading-relaxed text-muted-foreground">
+      <h3 className="cc-h2 mb-3 text-foreground">还没有决策记录</h3>
+      <p className="mb-2 max-w-md text-sm leading-relaxed text-muted-foreground">
         纠结的时候，把此刻的权衡写下来：倾向哪边、有几分把握、还缺什么信息。
       </p>
-      <p className="mb-6 max-w-md text-sm leading-relaxed text-muted-foreground">
+      <p className="mb-8 max-w-md text-sm leading-relaxed text-muted-foreground">
         过段时间回看，你会看到自己的想法是怎么一步步变化的——看清自己怎么想，比急着要一个答案更重要。
       </p>
       <button
         type="button"
         onClick={onCreate}
-        className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm btn-press"
+        className="dn-focus btn-press inline-flex min-h-11 items-center justify-center gap-2 bg-primary px-6 py-3 text-sm font-medium text-primary-foreground"
       >
-        <Plus className="h-4 w-4" /> 记一个新决策
+        <Plus aria-hidden="true" className="h-4 w-4" /> 记一个新决策
       </button>
     </div>
   );
@@ -524,31 +600,41 @@ export function DecisionJournal() {
   return (
     <div className="h-full overflow-y-auto">
       <div className="mx-auto max-w-3xl px-6 py-8">
-        <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
+        <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-foreground">决策日志</h2>
-            <p className="mt-1 text-sm text-muted-foreground">记下你此刻的权衡，过段时间回看想法怎么变了</p>
+            <h2 className="cc-h1 text-2xl text-foreground">决策日志</h2>
+            <p className="cc-body mt-2 text-muted-foreground">记下你此刻的权衡，过段时间回看想法怎么变了</p>
           </div>
           {!showForm && !isEmpty && (
             <button
               type="button"
               onClick={() => setShowForm(true)}
-              className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm btn-press"
+              className="dn-focus btn-press inline-flex min-h-11 items-center justify-center gap-2 bg-primary px-5 py-3 text-sm font-medium text-primary-foreground"
             >
-              <Plus className="h-4 w-4" /> 记一个新决策
+              <Plus aria-hidden="true" className="h-4 w-4" /> 记一个新决策
             </button>
           )}
         </header>
 
         {decisions.length > 0 && (
-          <div className="rounded-xl border border-border/40 bg-card p-3 mb-4">
-            <div className="flex items-center gap-4 text-sm">
-              <span className="text-foreground font-medium">📋 本周决策摘要</span>
-              <span className="text-muted-foreground">⏳ {decisions.filter(d => d.status === 'open').length} 待决定</span>
-              <span className="text-muted-foreground">✅ {decisions.filter(d => d.status === 'settled').length} 已决定</span>
-              <span className="text-muted-foreground">🔄 {decisions.reduce((sum, d) => sum + d.snapshots.length, 0)} 总快照</span>
+          /* 概览用 Ink 实色场承载，数字本身成为视觉主体；数字全部来自本地记录 */
+          <section aria-label="决策概览" className="mb-6 bg-dn-ink px-5 py-4">
+            <div className="flex flex-wrap items-baseline gap-x-8 gap-y-2">
+              <span className="cc-kicker cc-on-ink-dim">决策概览</span>
+              <span className="text-sm text-dn-on-ink">
+                <span className="cc-num text-2xl">{openDecisions.length}</span> 待决定
+              </span>
+              <span className="text-sm text-dn-on-ink">
+                <span className="cc-num text-2xl">{settledDecisions.length}</span> 已决定
+              </span>
+              <span className="text-sm text-dn-on-ink">
+                <span className="cc-num text-2xl">
+                  {decisions.reduce((sum, d) => sum + d.snapshots.length, 0)}
+                </span>{' '}
+                条想法快照
+              </span>
             </div>
-          </div>
+          </section>
         )}
 
         {showForm && (
@@ -562,19 +648,23 @@ export function DecisionJournal() {
           <EmptyState onCreate={() => setShowForm(true)} />
         ) : (
           <>
-            <section aria-label="进行中的决策" className="space-y-4">
+            <section aria-label="进行中的决策" className="space-y-5">
               {openDecisions.map((d) => (
                 <DecisionCard key={d.id} decision={d} onChanged={refresh} />
               ))}
               {openDecisions.length === 0 && !isEmpty && (
-                <p className="py-4 text-center text-sm text-muted-foreground">手头的纠结都已想清楚了</p>
+                <p className="border-b border-border py-6 text-sm text-muted-foreground">
+                  手头的纠结都已想清楚了
+                </p>
               )}
             </section>
 
             {settledDecisions.length > 0 && (
-              <section aria-label="已决定的决策" className="mt-8 border-t border-border/30 pt-4">
-                <p className="mb-3 text-xs text-muted-foreground">已决定（{settledDecisions.length}）</p>
-                <div className="space-y-2">
+              <section aria-label="已决定的决策" className="mt-10 border-t border-border pt-5">
+                <h3 className="cc-kicker mb-4 text-muted-foreground">
+                  已决定（{settledDecisions.length}）
+                </h3>
+                <div className="space-y-3">
                   {settledDecisions.map((d) => (
                     <SettledCard key={d.id} decision={d} onChanged={refresh} />
                   ))}

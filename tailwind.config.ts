@@ -1,11 +1,18 @@
 import type { Config } from 'tailwindcss';
 
+/**
+ * Tailwind 主题层。
+ *
+ * 数值不在本文件硬编码：全部指向 DNDL（public/vendor/dndl/tokens.css）的
+ * `--dn-*` 变量。组件请优先使用 `bg-dn-*` / `text-dn-*` 或语义类
+ * （`bg-background`、`text-foreground`、`border-border`），不要写死颜色。
+ */
 const config: Config = {
   content: ['./src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        // shadcn CSS variable mapping
+        // 语义层 → shadcn 变量 → globals.css 中映射到 DNDL 语义 Token
         background: 'var(--background)',
         foreground: 'var(--foreground)',
         card: { DEFAULT: 'var(--card)', foreground: 'var(--card-foreground)' },
@@ -28,33 +35,66 @@ const config: Config = {
           border: 'var(--sidebar-border)',
           ring: 'var(--sidebar-ring)',
         },
-        // Keep custom palette for backward compat
-        espresso: { DEFAULT: '#2C1A0E', muted: '#4A3728', light: '#6B5A4E' },
-        cream: { DEFAULT: '#FAF4EC', bg: '#FDF9F4', line: '#D9C9B0' },
-        terracotta: { light: '#F5E1D8', DEFAULT: '#C96442', deep: '#A0452A' },
-        sage: { light: '#EDF2EC', DEFAULT: '#4A6741', deep: '#3A5233' },
+        // DNDL 原始色与语义色。八个品牌色与六个基础色即为品牌基准，
+        // 不得为调对比度而改动取值。
+        dn: {
+          teal: 'var(--dn-teal)',
+          cyan: 'var(--dn-cyan)',
+          emerald: 'var(--dn-emerald)',
+          violet: 'var(--dn-violet)',
+          amber: 'var(--dn-amber)',
+          orange: 'var(--dn-orange)',
+          steel: 'var(--dn-steel)',
+          crimson: 'var(--dn-crimson)',
+          canvas: 'var(--dn-canvas)',
+          surface: 'var(--dn-surface)',
+          ink: 'var(--dn-ink-primary)',
+          'ink-secondary': 'var(--dn-ink-secondary)',
+          'ink-muted': 'var(--dn-ink-muted)',
+          divider: 'var(--dn-divider)',
+          'text-primary': 'var(--dn-text-primary)',
+          'text-secondary': 'var(--dn-text-secondary)',
+          'on-color': 'var(--dn-text-on-color)',
+          'on-ink': 'var(--dn-text-on-ink)',
+          focus: 'var(--dn-focus)',
+        },
       },
       fontFamily: {
-        sans: ['"Noto Sans SC"', '"PingFang SC"', '"Microsoft YaHei"', 'system-ui', 'sans-serif'],
-        display: ['"Noto Sans SC"', '"PingFang SC"', '"Microsoft YaHei"', 'system-ui', 'sans-serif'],
-        mono: ['"JetBrains Mono"', '"Fira Code"', 'monospace'],
+        sans: ['var(--dn-font)'],
+        display: ['var(--dn-font-display)'],
+      },
+      // 默认直角。圆形只允许用于确有功能需要的元素（头像、状态点、图标）。
+      borderRadius: {
+        sm: 'var(--dn-radius)',
+        DEFAULT: 'var(--dn-radius)',
+        md: 'var(--dn-radius)',
+        lg: 'var(--dn-radius)',
+        xl: 'var(--dn-radius)',
+        '2xl': 'var(--dn-radius)',
+        '3xl': 'var(--dn-radius)',
+        card: 'var(--dn-radius)',
+        control: 'var(--dn-radius)',
+        panel: 'var(--dn-radius)',
+        dialog: 'var(--dn-radius)',
       },
       boxShadow: {
-        card: '0 0 0 1px rgba(44, 26, 14, 0.04)',
-        'card-hover': '0 0 0 1px rgba(201, 100, 66, 0.15), 0 2px 8px rgba(44, 26, 14, 0.06)',
-        panel: '-1px 0 0 rgba(44, 26, 14, 0.06)',
-        popover: '0 4px 16px rgba(44, 26, 14, 0.08), 0 0 0 1px rgba(44, 26, 14, 0.04)',
-      },
-      borderRadius: {
-        card: '4px',
-        control: '6px',
-        panel: '12px',
-        dialog: '16px',
+        // 与 DNDL 层级一致：Level 0/1 无阴影，阴影只解释层级。
+        panel: 'var(--dn-shadow-0)',
+        card: 'var(--dn-shadow-1)',
+        'card-hover': 'var(--dn-shadow-2)',
+        popover: 'var(--dn-shadow-3)',
+        dialog: 'var(--dn-shadow-4)',
       },
       transitionDuration: {
-        fast: '150ms',
-        normal: '200ms',
-        slow: '300ms',
+        hover: 'var(--dn-duration-hover)',
+        press: 'var(--dn-duration-press)',
+        expand: 'var(--dn-duration-expand)',
+        page: 'var(--dn-duration-page)',
+      },
+      transitionTimingFunction: {
+        'dn-in': 'var(--dn-ease-in)',
+        'dn-out': 'var(--dn-ease-out)',
+        'dn-snap': 'var(--dn-ease-snap)',
       },
     },
   },

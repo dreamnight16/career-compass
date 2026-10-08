@@ -37,12 +37,12 @@ export function AchievementWall({ context }: AchievementWallProps) {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-amber-500" />
+          <h2 className="cc-h2 text-foreground flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-dn-amber" aria-hidden="true" />
             成就大厅
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            已解锁 <span className="font-semibold text-primary">{unlockedCount}</span> / {ACHIEVEMENTS.length} 枚徽章
+            已解锁 <span className="cc-num text-foreground">{unlockedCount}</span> / {ACHIEVEMENTS.length} 枚徽章
           </p>
         </div>
       </div>
@@ -54,14 +54,14 @@ export function AchievementWall({ context }: AchievementWallProps) {
             key={item.key}
             onClick={() => setCategory(item.key)}
             className={cn(
-              'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-all duration-200',
+              'inline-flex min-h-11 items-center gap-1.5 px-3 text-sm transition-colors duration-200',
               category === item.key
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'bg-secondary text-muted-foreground hover:bg-secondary/80 hover:text-foreground'
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-dn-divider text-foreground'
             )}
             aria-pressed={category === item.key}
           >
-            <span>{item.icon}</span>
+            <span aria-hidden="true">{item.icon}</span>
             <span>{item.label}</span>
           </button>
         ))}
@@ -80,61 +80,62 @@ export function AchievementWall({ context }: AchievementWallProps) {
               key={badge.id}
               disabled={!isUnlocked}
               className={cn(
-                'relative flex flex-col items-center rounded-xl border p-4 text-center transition-all duration-300',
+                'relative flex flex-col items-center border p-4 text-center transition-colors duration-300',
                 isUnlocked
-                  ? 'badge-hover border-amber-200/60 bg-gradient-to-b from-amber-50/50 to-card cursor-pointer'
-                  : 'border-border/40 bg-card/50 cursor-default',
+                  ? 'badge-hover cc-tint-emerald border-dn-emerald cursor-pointer'
+                  : 'border-border bg-secondary cursor-default',
                 `badge-enter badge-enter-${(idx % 20) + 1}`
               )}
               aria-label={`${badge.title}${isUnlocked ? ' — 已解锁' : ' — 未解锁'}`}
             >
-              {/* Icon */}
+              {/* Icon：圆形图标容器是 rounded-full 的合理用法 */}
               <div
                 className={cn(
-                  'flex h-14 w-14 items-center justify-center rounded-full text-3xl transition-all duration-500',
+                  'flex h-14 w-14 items-center justify-center rounded-full text-3xl',
                   isUnlocked
-                    ? 'bg-amber-50 border-2 border-amber-200'
-                    : 'bg-secondary/50 border border-border/30 grayscale opacity-50'
+                    ? 'border-2 border-dn-emerald bg-dn-emerald text-dn-on-color'
+                    : 'border border-border bg-dn-canvas grayscale opacity-60'
                 )}
               >
-                {badge.icon}
+                <span aria-hidden="true">{badge.icon}</span>
               </div>
 
               {/* Title */}
               <span className={cn(
-                'mt-2 text-sm font-semibold',
-                isUnlocked ? 'text-foreground' : 'text-muted-foreground/70'
+                'mt-2 text-sm font-medium',
+                isUnlocked ? 'text-foreground' : 'text-muted-foreground'
               )}>
                 {badge.title}
               </span>
 
               {/* Description or unlock condition */}
-              <span className="mt-1 text-[11px] text-muted-foreground/60 leading-tight">
+              <span className="mt-1 text-[11px] text-muted-foreground leading-tight">
                 {isUnlocked ? badge.description : badge.condition}
               </span>
 
               {/* Progress bar (only for in-progress badges) */}
               {hasProgress && (
                 <div className="mt-2 w-full">
-                  <div className="flex justify-between text-[10px] text-muted-foreground mb-0.5">
-                    <span>{progress!.current}/{progress!.target}</span>
-                    <span>{progressPct}%</span>
+                  <div className="flex justify-between text-[10px] text-muted-foreground mb-1">
+                    <span className="cc-num">{progress!.current}/{progress!.target}</span>
+                    <span className="cc-num">{progressPct}%</span>
                   </div>
-                  <div className="h-1 w-full rounded-full bg-secondary overflow-hidden">
+                  <div className="h-1 w-full bg-dn-canvas overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-primary transition-all duration-500"
+                      className="h-full bg-dn-teal transition-all duration-500"
                       style={{ width: `${progressPct}%` }}
                     />
                   </div>
                 </div>
               )}
 
-              {/* Unlocked date */}
-              {isUnlocked && (
-                <span className="mt-2 text-[10px] text-emerald-600 font-medium">
-                  ✅ 已解锁
-                </span>
-              )}
+              {/* 状态：形状 + 文字，不只用颜色或 emoji 表达 */}
+              <span className={cn(
+                'mt-2 cc-status text-[11px]',
+                isUnlocked ? 'cc-status-done text-foreground' : 'cc-status-blocked text-muted-foreground'
+              )}>
+                {isUnlocked ? '已解锁' : '未解锁'}
+              </span>
             </button>
           );
         })}

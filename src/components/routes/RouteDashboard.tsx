@@ -10,6 +10,16 @@ import { cn } from '@/lib/utils';
 
 const NODE_W = 140;
 
+/** 节点状态 → 文字语义：状态不能只靠颜色表达 */
+function nodeStatusLabel(status: string): string {
+  switch (status) {
+    case 'done': return '已完成';
+    case 'active': return '进行中';
+    case 'goal': return '最终目标';
+    default: return '未解锁';
+  }
+}
+
 export function RouteDashboard() {
   const router = useRouter();
   const [routes, setRoutes] = useState<ReturnType<typeof getRoutes>>([]);
@@ -60,12 +70,12 @@ export function RouteDashboard() {
   if (routes.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center px-6">
-        <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-3xl bg-secondary">
-          <svg className="h-12 w-12 text-muted-foreground/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1"><path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+        <div className="mb-6 flex h-24 w-24 items-center justify-center bg-dn-divider">
+          <svg className="h-12 w-12 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
         </div>
-        <h3 className="text-lg font-semibold text-foreground mb-2">还没有路线规划</h3>
+        <h3 className="cc-h2 text-foreground mb-2">还没有路线规划</h3>
         <p className="text-sm text-muted-foreground mb-6">完善个人画像后，可选用 AI 整理职业路线</p>
-        <button onClick={() => router.push('/main?tab=profile')} className="rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm btn-press">
+        <button onClick={() => router.push('/main?tab=profile')} className="min-h-11 bg-primary px-6 text-sm text-primary-foreground btn-press">
           去完善画像
         </button>
       </div>
@@ -74,18 +84,25 @@ export function RouteDashboard() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* Overall progress bar */}
-      <div className="bg-card rounded-xl border border-border/40 p-4 shadow-sm">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-semibold text-foreground">总进度</span>
-          <span className="text-sm text-muted-foreground">{doneNodes}/{totalNodes} 节点 · {completionPct}%</span>
+      {/* 总进度：一块 Ink 实色场，数字本身成为界面 */}
+      <div className="bg-dn-ink text-dn-on-ink p-5">
+        <div className="flex items-end justify-between mb-3">
+          <span className="cc-kicker">总进度</span>
+          <span className="text-sm cc-on-ink-dim">{doneNodes}/{totalNodes} 节点 · <span className="cc-num">{completionPct}%</span></span>
         </div>
-        <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
-          <div className="h-full rounded-full bg-primary transition-all duration-700 ease-out" style={{ width: `${completionPct}%` }} />
+        <div
+          className="h-2 w-full bg-dn-canvas overflow-hidden"
+          role="progressbar"
+          aria-valuenow={completionPct}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="全部路线的节点完成率"
+        >
+          <div className="h-full bg-dn-teal transition-all duration-700 ease-out" style={{ width: `${completionPct}%` }} />
         </div>
-        <div className="flex gap-4 mt-3 text-xs text-muted-foreground">
-          <span>📋 {activeRoutes.length} 条进行中</span>
-          <span>✅ {completedCount} 条已完成</span>
+        <div className="flex gap-6 mt-4 text-xs cc-on-ink-dim">
+          <span className="cc-status cc-status-open">{activeRoutes.length} 条进行中</span>
+          <span className="cc-status cc-status-done">{completedCount} 条已完成</span>
         </div>
       </div>
 
@@ -96,16 +113,16 @@ export function RouteDashboard() {
         const isExpanded = expandedId === route.id;
 
         return (
-          <div key={route.id} className="bg-card rounded-xl border border-border/40 shadow-sm overflow-hidden">
+          <div key={route.id} className="bg-card border border-border overflow-hidden">
             {/* Card header */}
-            <div className="flex items-center justify-between p-4 border-b border-border/20">
+            <div className="flex items-center justify-between p-4 border-b border-border">
               <div className="flex items-center gap-3">
                 <ProgressRing value={doneCount} total={nodes.length} size={40} strokeWidth={3.5} />
                 <div>
-                  <h3 className="font-semibold text-foreground text-sm">{route.title}</h3>
-                  <div className="flex items-center gap-2 mt-0.5">
+                  <h3 className="cc-h2 text-foreground">{route.title}</h3>
+                  <div className="flex items-center gap-2 mt-1">
                     {route.tags.slice(0, 2).map(t => (
-                      <span key={t} className="text-[10px] px-1.5 py-px rounded bg-secondary text-muted-foreground">{t}</span>
+                      <span key={t} className="text-[10px] px-1.5 py-px bg-dn-divider text-foreground">{t}</span>
                     ))}
                     <span className="text-[10px] text-muted-foreground">{route.salary}</span>
                   </div>
@@ -114,10 +131,11 @@ export function RouteDashboard() {
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => setExpandedId(isExpanded ? null : route.id)}
-                  className="rounded-lg p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
-                  aria-label={isExpanded ? '收起详情' : '展开详情'}
+                  className="flex min-h-11 min-w-11 items-center justify-center text-muted-foreground hover:bg-dn-divider hover:text-foreground transition-colors"
+                  aria-label={isExpanded ? '收起路线详情' : '展开路线详情'}
+                  aria-expanded={isExpanded}
                 >
-                  {isExpanded ? <ChevronRight className="h-4 w-4 rotate-90" /> : <ChevronRight className="h-4 w-4" />}
+                  {isExpanded ? <ChevronRight className="h-4 w-4 rotate-90" aria-hidden="true" /> : <ChevronRight className="h-4 w-4" aria-hidden="true" />}
                 </button>
               </div>
             </div>
@@ -132,14 +150,14 @@ export function RouteDashboard() {
 
                   return (
                     <div key={node.id} className="flex items-center">
-                      {/* Connection line + flowing particle */}
+                      {/* 连接线：DNDL 品牌实色；当前位置用静态标记，不做循环脉冲 */}
                       {idx > 0 && (
                         <div className="relative flex items-center w-10 h-12">
-                          <div className="w-full h-[2px] rounded-full"
-                            style={{ background: isDone ? '#10b981' : isActive ? '#c96442' : '#d9c9b0' }}
+                          <div className="w-full h-[2px]"
+                            style={{ background: isDone ? 'var(--dn-emerald)' : isActive ? 'var(--dn-teal)' : 'var(--dn-divider)' }}
                           />
                           {isActive && (
-                            <div className="absolute top-1/2 left-0 w-2 h-2 rounded-full bg-primary animate-pulse" style={{ transform: 'translate(-50%, -50%)' }} />
+                            <div className="absolute top-1/2 left-0 w-2 h-2 bg-dn-teal" style={{ transform: 'translate(-50%, -50%)' }} />
                           )}
                         </div>
                       )}
@@ -156,27 +174,27 @@ export function RouteDashboard() {
                         }}
                         disabled={node.status === 'locked' || node.status === 'goal'}
                         className={cn(
-                          'relative flex flex-col items-center justify-center rounded-xl border px-3 py-2.5 text-xs transition-all',
-                          isDone && 'bg-emerald-50 border-emerald-300 text-emerald-800 hover:shadow-md cursor-pointer ripple-out',
-                          isActive && 'bg-primary/10 border-primary text-primary hover:shadow-md cursor-pointer',
-                          isGoal && 'bg-amber-50 border-amber-300 text-amber-800 cursor-default',
-                          node.status === 'locked' && 'bg-secondary/50 border-border/30 text-muted-foreground cursor-default opacity-50',
+                          'relative flex flex-col items-center justify-center gap-1 border px-3 py-2.5 text-xs transition-colors',
+                          isDone && 'cc-tint-emerald border-dn-emerald text-foreground hover:bg-dn-emerald hover:text-dn-on-color cursor-pointer ripple-out',
+                          isActive && 'cc-tint-teal border-primary text-foreground hover:bg-primary hover:text-primary-foreground cursor-pointer',
+                          isGoal && 'cc-tint-amber border-dn-amber text-foreground cursor-default',
+                          node.status === 'locked' && 'bg-secondary border-border text-muted-foreground cursor-default',
                         )}
                         style={{ width: NODE_W, minHeight: 64 }}
-                        aria-label={`${node.label} — ${node.status === 'done' ? '已完成' : node.status === 'active' ? '进行中' : node.status === 'goal' ? '最终目标' : '未解锁'}`}
+                        aria-label={`${node.label} — ${nodeStatusLabel(node.status)}`}
                       >
-                        <span className="text-base mb-0.5">
-                          {isDone ? '✅' : isActive ? '⏳' : isGoal ? '⭐' : '🔒'}
+                        {/* 状态：颜色之外另有形状 + 文字 */}
+                        <span className={cn(
+                          'cc-status text-[10px]',
+                          isDone && 'cc-status-done',
+                          isActive && 'cc-status-open',
+                          node.status === 'locked' && 'cc-status-blocked',
+                        )}>
+                          {nodeStatusLabel(node.status)}
                         </span>
                         <span className="font-medium text-[11px] leading-tight text-center line-clamp-2">
                           {node.label}
                         </span>
-                        {isActive && (
-                          <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-40" />
-                            <span className="relative inline-flex rounded-full h-3 w-3 bg-primary" />
-                          </span>
-                        )}
                       </button>
                     </div>
                   );
@@ -186,7 +204,7 @@ export function RouteDashboard() {
 
             {/* Expanded details */}
             {isExpanded && (
-              <div className="px-4 pb-4 border-t border-border/10 pt-3 space-y-2 text-xs text-muted-foreground float-up">
+              <div className="px-4 pb-4 border-t border-border pt-3 space-y-2 text-xs text-muted-foreground float-up">
                 {route.requirements.length > 0 && (
                   <div>
                     <span className="font-semibold text-foreground">📊 门槛条件: </span>
@@ -202,7 +220,7 @@ export function RouteDashboard() {
                       const href = 'url' in s ? s.url : s.sourceUrl;
                       return (
                         <a key={i} href={href} target="_blank" rel="noopener noreferrer"
-                          className="text-primary underline hover:no-underline">[{s.title}]</a>
+                          className="text-foreground underline underline-offset-2 hover:bg-dn-divider">[{s.title}]</a>
                       );
                     })}
                   </div>
@@ -210,9 +228,9 @@ export function RouteDashboard() {
                 <div className="flex gap-2 pt-2">
                   <button
                     onClick={() => handleAbandon(route.id, route.title)}
-                    className="text-[11px] text-muted-foreground hover:text-red-500 transition-colors inline-flex items-center gap-1"
+                    className="inline-flex min-h-11 items-center gap-1.5 bg-dn-crimson px-3 text-[11px] font-medium text-dn-on-color btn-press"
                   >
-                    <Trash2 className="h-3 w-3" /> 放弃此路线
+                    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" /> 放弃此路线
                   </button>
                 </div>
               </div>

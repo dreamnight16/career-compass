@@ -56,7 +56,13 @@ function MainContent() {
 
 export default function MainPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center bg-background"><p className="text-sm text-muted-foreground">加载中…</p></div>}>
+    <Suspense
+      fallback={
+        <div className="flex h-screen items-center justify-center bg-background">
+          <p className="cc-body text-muted-foreground">加载中…</p>
+        </div>
+      }
+    >
       <MainContent />
     </Suspense>
   );

@@ -86,8 +86,8 @@ function EditableCell({ field, profile }: { field: FieldDef; profile: Partial<Us
 
   if (editing) {
     return (
-      <div className="rounded-lg px-2.5 py-2 bg-background ring-1 ring-primary/40">
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><span>{field.icon}</span><span>{field.label}</span></div>
+      <div className="bg-secondary px-2.5 py-2 ring-1 ring-primary">
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><span aria-hidden="true">{field.icon}</span><span>{field.label}</span></div>
         <input
           autoFocus
           value={draft}
@@ -100,7 +100,7 @@ function EditableCell({ field, profile }: { field: FieldDef; profile: Partial<Us
           }}
           placeholder={field.kind === 'budget' ? '万元，如 20' : field.kind === 'tags' ? '用、分隔' : ''}
           aria-label={`编辑${field.label}`}
-          className="mt-0.5 w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/40"
+          className="mt-0.5 min-h-9 w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground"
         />
       </div>
     );
@@ -109,15 +109,16 @@ function EditableCell({ field, profile }: { field: FieldDef; profile: Partial<Us
   return (
     <button
       onClick={startEdit}
-      className={`rounded-lg px-2.5 py-2 text-left transition-colors hover:ring-1 hover:ring-primary/30 group ${isFilled ? 'bg-background' : 'bg-background/50'}`}
+      className="group min-h-11 bg-card px-2.5 py-2 text-left transition-colors hover:bg-secondary"
       aria-label={`${field.label}：${isFilled ? field.format(v) : '未填写'}，点击编辑`}
     >
       <div className="flex items-center justify-between gap-1.5 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1.5"><span>{field.icon}</span><span>{field.label}</span></span>
-        <span className="opacity-0 group-hover:opacity-100 text-[10px] text-primary/60 transition-opacity">✎</span>
+        <span className="flex items-center gap-1.5"><span aria-hidden="true">{field.icon}</span><span>{field.label}</span></span>
+        <span className="opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 text-[11px] text-muted-foreground" aria-hidden="true">✎</span>
       </div>
-      <div className={`mt-0.5 text-sm ${isFilled ? 'font-medium text-foreground' : 'text-muted-foreground/60'}`}>
-        {isFilled ? field.format(v) : '—'}
+      {/* 已填 / 未填用文字本身区分（值 vs「未填写」），不依赖颜色 */}
+      <div className={`mt-0.5 text-sm ${isFilled ? 'text-foreground' : 'text-muted-foreground'}`}>
+        {isFilled ? field.format(v) : '未填写'}
       </div>
     </button>
   );
@@ -128,37 +129,48 @@ export function ProfileCard({ profile }: ProfileCardProps) {
   const filled = countFilled(profile), total = FIELDS.length, pct = Math.round((filled / total) * 100);
 
   if (collapsed) return (
-    <button onClick={() => setCollapsed(false)} className="flex w-full items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-left text-sm shadow-sm transition-all hover:shadow-md">
-      <span className="text-base">📋</span><span className="font-medium text-foreground">角色卡</span>
-      <span className="text-muted-foreground">({filled}/{total})</span>
+    <button onClick={() => setCollapsed(false)} className="dn-focus btn-press flex min-h-11 w-full items-center gap-2.5 border border-border bg-card px-3 py-2.5 text-left text-sm transition-colors hover:bg-secondary">
+      <span className="text-base" aria-hidden="true">📋</span><span className="text-foreground">角色卡</span>
+      <span className="cc-num text-foreground">{filled}<span className="text-muted-foreground">/{total}</span></span>
       <span className="ml-auto text-xs text-muted-foreground">展开 ▾</span>
     </button>
   );
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-      <div className="flex items-center justify-between border-b border-border/50 bg-secondary/50 px-4 py-2.5">
-        <div className="flex items-center gap-2">
-          <span className="text-base">📋</span><span className="text-sm font-semibold">角色卡</span>
-          <span className="rounded-full bg-background px-2 py-0.5 text-xs font-medium text-muted-foreground border border-border">{filled}/{total}</span>
+    /* Level 0：平面直角，靠分隔线与排版分层，不用圆角卡片堆叠 */
+    <div className="border border-border bg-card">
+      <div className="flex items-center justify-between gap-3 border-b border-border bg-secondary px-4 py-3">
+        <div className="flex items-center gap-2.5">
+          <span className="text-base" aria-hidden="true">📋</span><span className="cc-h2 text-foreground">角色卡</span>
         </div>
-        <button onClick={() => setCollapsed(true)} className="rounded p-0.5 text-muted-foreground hover:text-foreground" aria-label="收起">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 10l4-4 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
-        </button>
+        <div className="flex items-center gap-2">
+          <span className="cc-num text-2xl text-foreground">
+            {filled}<span className="cc-num text-base text-muted-foreground">/{total}</span>
+          </span>
+          <button onClick={() => setCollapsed(true)} className="dn-focus btn-press inline-flex min-h-11 min-w-11 items-center justify-center text-muted-foreground transition-colors hover:text-foreground" aria-label="收起角色卡">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 10l4-4 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+          </button>
+        </div>
       </div>
-      <div className="grid grid-cols-2 gap-px bg-border/30 p-3">
+      {/* 8 个维度：直角网格 + 发丝分隔线，不叠小圆角卡片 */}
+      <div className="grid grid-cols-2 gap-px bg-border">
         {FIELDS.map(f => <EditableCell key={f.key} field={f} profile={profile} />)}
       </div>
-      <div className="border-t border-border/50 px-4 py-2.5">
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>了解程度</span>
-          <span className={`font-medium ${filled >= 6 ? 'text-emerald-600' : filled >= 4 ? 'text-primary' : 'text-muted-foreground'}`}>{pct}%</span>
+      <div className="border-t border-border px-4 py-3">
+        <div className="flex items-baseline justify-between gap-3">
+          <span className="cc-kicker text-muted-foreground">了解程度</span>
+          <span className="cc-num text-xl text-foreground">{pct}%</span>
         </div>
-        <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
-          <div className={`h-full rounded-full transition-all duration-500 ${filled >= 6 ? 'bg-emerald-500' : filled >= 4 ? 'bg-primary' : 'bg-border'}`} style={{ width: `${pct}%` }} />
+        <div className="mt-2 h-1.5 w-full bg-secondary" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="角色卡填写进度">
+          <div className={`h-full transition-all duration-500 ${filled >= 6 ? 'bg-dn-emerald' : filled >= 4 ? 'bg-dn-amber' : 'bg-dn-steel'}`} style={{ width: `${pct}%` }} />
         </div>
-        <div className="mt-1 text-center text-xs">
-          {filled >= 6 ? <span className="text-emerald-600">可以开始分析了</span> : filled >= 4 ? <span className="text-primary">继续了解中</span> : <span className="text-muted-foreground">点击任意格子直接填写</span>}
+        {/* 状态用实色块 + 文字与符号表达，不只靠颜色 */}
+        <div className="mt-2">
+          {filled >= 6
+            ? <span className="inline-flex min-h-9 items-center bg-dn-emerald px-2.5 text-xs text-dn-on-color">✓ 可以开始分析了</span>
+            : filled >= 4
+              ? <span className="inline-flex min-h-9 items-center bg-dn-amber px-2.5 text-xs text-dn-on-color">△ 继续了解中，还差 {6 - filled} 项</span>
+              : <span className="inline-flex min-h-9 items-center border border-border px-2.5 text-xs text-muted-foreground">◇ 点击任意格子直接填写</span>}
         </div>
       </div>
     </div>

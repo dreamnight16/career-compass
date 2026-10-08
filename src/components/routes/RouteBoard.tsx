@@ -104,19 +104,20 @@ export function RouteBoard() {
   return (
     <div className="flex flex-col h-full">
       {/* Sub-tab navigation */}
-      <nav className="flex shrink-0 gap-1 border-b border-border/30 px-4 py-2 overflow-x-auto">
+      <nav className="flex shrink-0 gap-1 border-b border-border px-4 py-2 overflow-x-auto" aria-label="成就与路线子视图">
         {SUB_TABS.map(tab => (
           <button
             key={tab.key}
             onClick={() => setActiveView(tab.key)}
+            aria-pressed={activeView === tab.key}
             className={cn(
-              'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-150',
+              'flex min-h-11 items-center gap-1.5 px-3 text-sm transition-colors duration-150',
               activeView === tab.key
-                ? 'bg-secondary text-primary shadow-sm'
-                : 'text-muted-foreground hover:bg-secondary/40 hover:text-foreground'
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:bg-dn-divider hover:text-foreground'
             )}
           >
-            <tab.icon className="h-4 w-4" />
+            <tab.icon className="h-4 w-4" aria-hidden="true" />
             {tab.label}
           </button>
         ))}
@@ -150,10 +151,10 @@ export function RouteBoard() {
 function PlaceholderView({ title, desc }: { title: string; desc: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center px-6">
-      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-secondary">
-        <BarChart3 className="h-8 w-8 text-muted-foreground/30" />
+      <div className="mb-4 flex h-16 w-16 items-center justify-center bg-dn-divider">
+        <BarChart3 className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
       </div>
-      <h3 className="text-lg font-semibold text-foreground mb-1">{title}</h3>
+      <h3 className="cc-h2 text-foreground mb-1">{title}</h3>
       <p className="text-sm text-muted-foreground">{desc}</p>
     </div>
   );

@@ -49,12 +49,13 @@ const QUESTIONS = [
 
 const TOTAL = QUESTIONS.length;
 
+/** 维度色全部取自 DNDL Token，不在组件里写死十六进制色值 */
 const DIM_INFO: Record<string, { name: string; high: string; low: string; color: string }> = {
-  O: { name: '开放性', high: '好奇心强、有创造力、喜欢新体验', low: '务实、传统、喜欢常规', color: '#8b5cf6' },
-  C: { name: '尽责性', high: '自律、有条理、追求卓越', low: '随性、灵活、不拘小节', color: '#10b981' },
-  E: { name: '外向性', high: '社交活跃、充满能量、乐观', low: '内向、安静、喜欢独处', color: '#f59e0b' },
-  A: { name: '宜人性', high: '友善、乐于助人、容易合作', low: '直率、独立、有主见', color: '#06b6d4' },
-  N: { name: '情绪稳定性', high: '抗压、情绪平稳、从容冷静', low: '敏感、容易焦虑、情绪波动', color: '#ef4444' },
+  O: { name: '开放性', high: '好奇心强、有创造力、喜欢新体验', low: '务实、传统、喜欢常规', color: 'var(--dn-violet)' },
+  C: { name: '尽责性', high: '自律、有条理、追求卓越', low: '随性、灵活、不拘小节', color: 'var(--dn-emerald)' },
+  E: { name: '外向性', high: '社交活跃、充满能量、乐观', low: '内向、安静、喜欢独处', color: 'var(--dn-amber)' },
+  A: { name: '宜人性', high: '友善、乐于助人、容易合作', low: '直率、独立、有主见', color: 'var(--dn-cyan)' },
+  N: { name: '情绪稳定性', high: '抗压、情绪平稳、从容冷静', low: '敏感、容易焦虑、情绪波动', color: 'var(--dn-crimson)' },
 };
 
 const CAREER_MAP: Record<string, string[]> = {
@@ -106,22 +107,27 @@ export function PersonalityTest({ onComplete, onClose }: Props) {
     const careers = CAREER_MAP[ck] || CAREER_MAP['O高_C高_E高'];
 
     return (
-      <div className="p-6 max-w-lg mx-auto">
-        <div className="text-center mb-6">
-          <p className="text-3xl mb-2">🧬</p>
-          <h3 className="text-lg font-semibold text-foreground mb-1">大五人格画像</h3>
+      <div className="mx-auto max-w-lg p-6">
+        <div className="mb-6">
+          <h3 className="cc-h2 text-foreground">🧬 大五人格画像</h3>
+          <p className="mt-1 text-xs text-muted-foreground">题库来源：IPIP 国际人格题库公开版 · 结果仅作参考</p>
         </div>
 
-        <div className="space-y-3 mb-6">
+        {/* 维度得分：数字为主要视觉，条形与文字标签同时表意 */}
+        <div className="mb-6 space-y-4">
           {Object.entries(DIM_INFO).map(([d, info]) => (
             <div key={d}>
-              <div className="flex justify-between text-xs mb-1">
-                <span className="text-muted-foreground">{info.name}（{info.low}）</span>
-                <span className="font-medium">{scores[d]}%</span>
-                <span className="text-muted-foreground">（{info.high}）</span>
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="text-sm text-foreground">{info.name}</span>
+                <span className="cc-num text-lg text-foreground">{scores[d]}%</span>
               </div>
-              <div className="h-3 rounded-full bg-secondary overflow-hidden">
-                <div className="h-full rounded-full transition-all duration-500" style={{ width:`${scores[d]}%`, backgroundColor:info.color }} />
+              <div className="mt-1 h-2 w-full bg-dn-divider" role="progressbar"
+                aria-valuenow={scores[d]} aria-valuemin={0} aria-valuemax={100} aria-label={`${info.name} 得分`}>
+                <div className="h-full" style={{ width: `${scores[d]}%`, backgroundColor: info.color }} />
+              </div>
+              <div className="mt-1 flex justify-between gap-3 text-[11px] text-muted-foreground">
+                <span>偏低：{info.low}</span>
+                <span>偏高：{info.high}</span>
               </div>
             </div>
           ))}
@@ -129,10 +135,10 @@ export function PersonalityTest({ onComplete, onClose }: Props) {
 
         {careers.length > 0 && (
           <div className="mb-6">
-            <p className="text-xs font-medium text-muted-foreground mb-2">与你特质相近的常见方向（仅参考）</p>
+            <p className="cc-kicker mb-2 text-muted-foreground">与你特质相近的常见方向（仅参考）</p>
             <div className="flex flex-wrap gap-1.5">
               {careers.map(c => (
-                <span key={c} className="rounded-full bg-primary/10 px-3 py-1 text-sm text-primary">{c}</span>
+                <span key={c} className="bg-dn-cyan px-3 py-1 text-sm text-dn-on-color">{c}</span>
               ))}
             </div>
           </div>
@@ -144,35 +150,40 @@ export function PersonalityTest({ onComplete, onClose }: Props) {
             localStorage.setItem('career-compass-bigfive', JSON.stringify({ scores, date: new Date().toISOString() }));
             onComplete(desc);
           }}
-            className="flex-1 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground">保存到画像</button>
-          <button onClick={onClose} className="rounded-xl border border-border px-4 py-2.5 text-sm text-muted-foreground">关闭</button>
+            className="dn-interactive dn-focus min-h-11 flex-1 bg-primary px-4 text-sm font-medium text-primary-foreground">保存到画像</button>
+          <button onClick={onClose}
+            className="dn-focus min-h-11 shrink-0 border border-input px-4 text-sm text-foreground transition-colors duration-hover hover:bg-secondary">关闭</button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 max-w-lg mx-auto">
+    <div className="mx-auto max-w-lg p-6">
       <div className="mb-5">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-lg font-semibold text-foreground">🧬 Big Five 人格测评</h3>
-          <span className="text-xs text-muted-foreground">{answered}/{TOTAL} · 科学验证</span>
+        <div className="mb-2 flex items-baseline justify-between gap-3">
+          <h3 className="cc-h2 text-foreground">🧬 Big Five 人格测评</h3>
+          <span className="cc-num shrink-0 text-xl text-muted-foreground">{answered}/{TOTAL}</span>
         </div>
-        <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
-          <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+        <div className="h-2 w-full bg-dn-divider" role="progressbar"
+          aria-valuenow={Math.round(progress)} aria-valuemin={0} aria-valuemax={100} aria-label="答题进度">
+          <div className="h-full bg-dn-teal" style={{ width: `${progress}%` }} />
         </div>
+        <p className="mt-2 text-[11px] text-muted-foreground">1 = 很不符合，5 = 很符合 · 题库来源：IPIP 国际人格题库公开版</p>
       </div>
 
-      <div className="space-y-2 max-h-[50vh] overflow-y-auto mb-4 pr-1">
+      <div className="mb-4 max-h-[50vh] overflow-y-auto pr-1">
         {QUESTIONS.map(q => (
-          <div key={q.id} className="rounded-lg border border-border/20 bg-card p-2.5 flex items-center justify-between gap-2">
-            <span className="text-xs text-muted-foreground w-5 shrink-0">{q.id}</span>
-            <p className="text-xs text-foreground flex-1">{q.text}</p>
-            <div className="flex shrink-0 gap-0.5">
+          <div key={q.id} className="flex items-center justify-between gap-3 border-b border-border py-2.5 last:border-b-0">
+            <span className="cc-num w-6 shrink-0 text-xs text-muted-foreground">{q.id}</span>
+            <p className="flex-1 text-sm text-foreground">{q.text}</p>
+            <div className="flex shrink-0 gap-1">
               {[1,2,3,4,5].map(v => (
                 <button key={v} onClick={() => setAnswers(p=>({...p,[q.id]:v}))}
-                  className={`w-7 h-7 rounded text-[10px] transition-colors ${
-                    answers[q.id]===v ? 'bg-primary text-primary-foreground font-bold' : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
+                  aria-label={`第 ${q.id} 题：${v} 分`}
+                  aria-pressed={answers[q.id]===v}
+                  className={`dn-focus flex h-10 w-10 items-center justify-center border text-xs transition-colors duration-hover ${
+                    answers[q.id]===v ? 'border-dn-teal bg-dn-teal text-dn-on-color' : 'border-border bg-dn-surface text-muted-foreground hover:border-input hover:text-foreground'
                   }`}>{v}</button>
               ))}
             </div>
@@ -183,10 +194,11 @@ export function PersonalityTest({ onComplete, onClose }: Props) {
       <div className="flex gap-2">
         <button onClick={() => { if(canSubmit) setShowResult(true); }}
           disabled={!canSubmit}
-          className="flex-1 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-30">
+          className="dn-interactive dn-focus min-h-11 flex-1 bg-primary px-4 text-sm font-medium text-primary-foreground disabled:cursor-not-allowed disabled:bg-secondary disabled:text-muted-foreground">
           {canSubmit ? `查看结果（${answered}/50）` : `至少完成40题（已答${answered}）`}
         </button>
-        <button onClick={onClose} className="rounded-xl border border-border px-4 py-2.5 text-sm text-muted-foreground">退出</button>
+        <button onClick={onClose}
+          className="dn-focus min-h-11 shrink-0 border border-input px-4 text-sm text-foreground transition-colors duration-hover hover:bg-secondary">退出</button>
       </div>
     </div>
   );
